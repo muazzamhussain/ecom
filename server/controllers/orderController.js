@@ -22,7 +22,7 @@ const addOrderItems = async (req, res) => {
       },
     }));
 
-    const result = await Product.bultWrite(bulkOps);
+    const result = await Product.bulkWrite(bulkOps);
 
     if (result.modifiedCount !== orderItems.length)
       return res.status(400).json({

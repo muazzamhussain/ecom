@@ -124,4 +124,59 @@ const deleteProduct = async (req, res) => {
   }
 };
 
-module.exports = { createProduct, getProducts, updateProduct, deleteProduct };
+const getProductById = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (product) {
+      return res.status(200).json(product);
+    } else {
+      res.status(404).json({ message: "Product not found!" });
+    }
+  } catch (error) {
+    console.log("Error getting product by id " + error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const createProductReview = async (req, res) => {
+  const { rating, comment } = req.body;
+  try {
+    const product = await Product.findById(req.params.id);
+    if (product) {
+      const alreadyReviewed = await product.reviews.find(
+        (r) => r.userId.toString() === req.user._id.toString(),
+      );
+      if (alreadyReviewed)
+        return res.status(400).json({ message: "Product already reviewed." });
+
+      const review = {
+        name: req.user.name,
+        rating: Number(rating),
+        comment,
+        userId: req.user._id,
+      };
+      product.reviews.push(review);
+      product.ratings.count = product.reviews.length;
+      product.ratings.average =
+        product.reviews.reduce((acc, item) => item.rating + acc, 0) /
+        items.reviews.length;
+
+      await product.save();
+      res.status(200).json({ message: "Review added successfully" });
+    } else {
+      res.status(404).json({ message: "Product not found!" });
+    }
+  } catch (error) {
+    console.log("Error creating product review " + error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+module.exports = {
+  createProduct,
+  getProducts,
+  updateProduct,
+  deleteProduct,
+  getProductById,
+  createProductReview,
+};
