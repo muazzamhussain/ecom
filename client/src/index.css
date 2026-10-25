@@ -1,0 +1,10 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@100;200;300;400;500;600;700&family=Special+Gothic+Expanded+One&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-heading: Special Gothic Expanded One, "sans-serif";
+  --font-body: IBM Plex Sans Thai, "sans-serif";
+  --color-gray: #f0f0f0;
+  --color-black: #000000;
+  
+}
