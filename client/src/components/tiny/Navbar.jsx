@@ -5,20 +5,7 @@ const Navbar = () => {
   const [openSidebar, setOpenSidebar] = useState(false);
 
   return (
-    // Pomobar
     <div>
-      <div className="h-8 flex items-center justify-center bg-black text-white font-extralight md:text-sm text-[10px]">
-        <p>
-          Sign up and get 20% off to your first order.{" "}
-          <a
-            href="/sign-up"
-            className="underline underline-offset-5 decoration-1 font-semibold"
-          >
-            Sign Up Now
-          </a>
-        </p>
-      </div>
-
       {/* Navbar */}
       <div className="flex justify-around h-15 md:h-20 items-center">
         <Menu
