@@ -1,6 +1,6 @@
 const Hero = () => {
   return (
-    <div className="h-160 md:bg-[url('hero.png')] md:p-25 md:bg-position-[80%_center] bg-gray">
+    <div className="md:h-160 md:bg-[url('hero.png')] md:p-25 md:bg-position-[80%_center] bg-gray">
       <h1 className="font-heading md:text-7xl font-bold tracking-wide md:w-200 text-2xl w-70 pt-15 md:pt-0 px-4">
         FIND CLOTHES THAT MATCHES YOUR STYLE
       </h1>
@@ -32,42 +32,6 @@ const Hero = () => {
             Happy Customers
           </p>
         </div>
-      </div>
-
-      <div className="md:hidden h-70">
-        <img
-          src="hero.png"
-          alt="hero-image"
-          className="object-cover object-right h-full"
-        />
-      </div>
-
-      <div className="logos bg-black flex flex-wrap gap-5 justify-center py-3 mt-5 md:h-40 md:justify-around items-center md:-mx-25">
-        <img
-          src="calvin-klein.png"
-          alt=""
-          className="object-center w-20 md:w-40 md:h-12 h-6"
-        />
-        <img
-          src="gucci.png"
-          alt=""
-          className="object-center w-20 md:w-40 md:h-12 h-6"
-        />
-        <img
-          src="versace.png"
-          alt=""
-          className="object-center w-20 md:w-40 md:h-12 h-6"
-        />
-        <img
-          src="zara.png"
-          alt=""
-          className="object-center w-20 md:w-40 md:h-12 h-6"
-        />
-        <img
-          src="prada.png"
-          alt=""
-          className="object-center w-20 md:w-40 md:h-12 h-6"
-        />
       </div>
     </div>
   );
