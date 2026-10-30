@@ -1,8 +1,10 @@
 import { ShoppingCart, CircleUserRound, Search, Menu } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const [openSidebar, setOpenSidebar] = useState(false);
+  const [openSearch, setOpenSearch] = useState(false);
 
   return (
     <div>
@@ -15,15 +17,22 @@ const Navbar = () => {
           }}
         />
         <h1 className="text-2xl font-bold font-heading relative right-6 md:block">
-          ECOM
+          <Link to="/">ECOM</Link>
         </h1>
         <ul className="gap-20 hidden md:flex">
           <li className="cursor-pointer">New Arrivals</li>
           <li className="cursor-pointer">Brands</li>
-          <li className="cursor-pointer">Shop</li>
+          <li className="cursor-pointer">
+            <Link to="/products">Shop</Link>
+          </li>
         </ul>
         <div className="search flex items-center">
-          <Search className=" relative left-7 md:left-8 md:opacity-60" />
+          <Search
+            className=" relative left-7 md:left-8 md:opacity-60"
+            onClick={() =>
+              openSearch ? setOpenSearch(false) : setOpenSearch(true)
+            }
+          />
           <input
             type="search"
             placeholder="Search for products..."
@@ -35,6 +44,14 @@ const Navbar = () => {
           <CircleUserRound className="cursor-pointer" />
         </div>
       </div>
+
+      {openSearch && (
+        <input
+          type="search"
+          placeholder="Search for products..."
+          className="bg-gray ml-6 px-4 text-sm  w-60 py-2 rounded-4xl focus:outline-1 md:hidden "
+        />
+      )}
 
       {/* Sidebar */}
       {openSidebar && (
