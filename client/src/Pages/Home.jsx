@@ -5,7 +5,6 @@ import LogoBar from "../components/tiny/LogoBar";
 import HeroImage from "../components/tiny/HeroImage";
 import BrowseSection from "../components/BrowseSection";
 import Testimonials from "../components/Testimonials";
-import Newsletter from "../components/Newsletter";
 import Footer from "../components/Footer";
 
 const Home = () => {
@@ -18,7 +17,6 @@ const Home = () => {
       <ProductSection />
       <BrowseSection />
       <Testimonials />
-      <Newsletter />
       <Footer />
     </div>
   );

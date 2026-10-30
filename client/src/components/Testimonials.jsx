@@ -111,7 +111,7 @@ export default function HappyCustomers() {
       <div className="max-w-350 mx-auto px-4 sm:px-6 md:px-8 lg:px-10">
         {/* Header */}
         <div className="flex items-center justify-between gap-4 mb-6 sm:mb-8 md:mb-10">
-          <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-black tracking-wide uppercase leading-tight">
+          <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl text-black tracking-wide uppercase leading-tight">
             OUR HAPPY CUSTOMERS
           </h2>
 
@@ -187,7 +187,7 @@ export default function HappyCustomers() {
 
                     {/* Name + Badge */}
                     <div className="flex items-center gap-1.5 mb-2">
-                      <h3 className="font-heading font-bold text-base sm:text-lg md:text-xl text-black">
+                      <h3 className="font-body font-bold text-base sm:text-lg md:text-lg text-black">
                         {item.name}
                       </h3>
                       {item.verified && (

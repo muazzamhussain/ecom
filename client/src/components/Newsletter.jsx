@@ -14,7 +14,7 @@ const Newsletter = () => {
     <section className="mx-auto max-w-7xl px-4 py-6 font-body">
       <div className="flex flex-col items-center justify-between gap-6 rounded-[20px] bg-black px-6 py-9 md:flex-row md:px-16 md:py-10">
         {/* Banner Heading */}
-        <h2 className="font-heading uppercase leading-wide text-white md:max-w-137 md:text-4xl">
+        <h2 className="font-heading uppercase leading-widest text-white md:max-w-137 md:text-4xl">
           STAY UPTO DATE ABOUT OUR LATEST OFFERS
         </h2>
 

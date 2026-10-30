@@ -7,7 +7,7 @@ const ProductCard = ({ image, title, rating, price, discountPrice }) => {
         <img src={image} alt="" />
       </div>
       <div className="text p-4">
-        <h3 className="font-semibold text-lg font-body">{title}</h3>
+        <h3 className="font-semibold text-md font-body">{title}</h3>
         <p className="text-xs flex gap-3 items-center">
           <Star fill="orange" stroke="none" size={20} /> {rating}
         </p>

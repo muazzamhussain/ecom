@@ -41,7 +41,7 @@ const BrowseSection = () => {
               className={`relative h-55 overflow-hidden rounded-2xl bg-white p-6 transition-all duration-300 hover:scale-[1.01] sm:h-65 ${cat.colSpan}`}
             >
               {/* Category Title */}
-              <span className="relative z-10 text-xs font-semibold text-black sm:text-3xl font-body">
+              <span className="relative z-10 text-sm font-semibold text-black font-body">
                 {cat.title}
               </span>
 
