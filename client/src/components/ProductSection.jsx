@@ -1,4 +1,4 @@
-import ProductCard from "./tiny/ProductCard";
+import ProductCard from "./ui/ProductCard";
 
 const ProductSection = () => {
   const newArrivals = [

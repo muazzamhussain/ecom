@@ -1,6 +1,6 @@
 import React from "react";
-import Promobar from "./tiny/Promobar";
-import Navbar from "./tiny/Navbar";
+import Promobar from "./ui/Promobar";
+import Navbar from "./ui/Navbar";
 
 const Header = () => {
   return (
