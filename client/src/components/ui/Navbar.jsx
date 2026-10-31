@@ -43,7 +43,9 @@ const Navbar = () => {
           <Link to="/cart">
             <ShoppingCart className="cursor-pointer" />
           </Link>
-          <CircleUserRound className="cursor-pointer" />
+          <Link to="/profile">
+            <CircleUserRound className="cursor-pointer" />
+          </Link>
         </div>
       </div>
 
