@@ -40,7 +40,9 @@ const Navbar = () => {
           />
         </div>
         <div className="icons flex gap-2 md:gap-5">
-          <ShoppingCart className="cursor-pointer" />
+          <Link to="/cart">
+            <ShoppingCart className="cursor-pointer" />
+          </Link>
           <CircleUserRound className="cursor-pointer" />
         </div>
       </div>
