@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import {
   User,
   Package,
   Heart,
-  CreditCard,
   Settings,
+  CreditCard,
   LogOut,
 } from "lucide-react";
 
@@ -16,6 +15,8 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 
 import { useAuth } from "../context/authContext";
+import ConfirmModal from "../components/ConfirmModal";
+import Setting from "../components/Setting";
 
 const NAV_ITEMS = [
   { id: "profile", label: "Personal Info", icon: User },
@@ -28,28 +29,41 @@ const NAV_ITEMS = [
 export default function Profile() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("profile");
+  const [logoutConfirm, setLogoutConfirm] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const { user, logout, isLoading } = useAuth();
 
+  // Redirect if not logged in
   useEffect(() => {
     if (!isLoading && !user) {
       navigate("/login");
     }
   }, [user, isLoading, navigate]);
 
-  const handleLogout = async () => {
+  // STEP 1: Open the modal (called when sidebar "Log Out" button is clicked)
+  const handleOpenLogoutModal = () => {
+    setLogoutConfirm(true);
+  };
+
+  // STEP 2: Actual logout (called when user clicks "Log Out" inside the modal)
+  const confirmLogout = async () => {
+    setIsLoggingOut(true);
     try {
       await logout();
+      setLogoutConfirm(false);
       navigate("/login");
     } catch (error) {
       console.error("Logout failed:", error);
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="font-body">Loading profile...</p>
+        <p className="font-body text-black/60">Loading profile...</p>
       </div>
     );
   }
@@ -70,7 +84,7 @@ export default function Profile() {
 
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
             {/* SIDEBAR */}
-            <div className="w-full lg:w-70 shrink-0">
+            <div className="w-full lg:w-72 shrink-0">
               {/* USER MINI CARD */}
               <div className="hidden lg:flex items-center gap-4 mb-8 p-6 rounded-2xl border border-black/10">
                 <div className="w-14 h-14 rounded-full bg-black flex items-center justify-center text-white font-heading text-xl">
@@ -81,7 +95,6 @@ export default function Profile() {
                   <h3 className="font-heading font-bold text-lg tracking-wider text-black truncate">
                     {user.name}
                   </h3>
-
                   <p className="font-body text-sm text-black/60 truncate">
                     {user.email}
                   </p>
@@ -105,7 +118,6 @@ export default function Profile() {
                       }`}
                     >
                       <Icon className="w-5 h-5" />
-
                       <span>{item.label}</span>
                     </button>
                   );
@@ -113,13 +125,12 @@ export default function Profile() {
 
                 <hr className="hidden lg:block border-black/10 my-4" />
 
-                {/* LOGOUT */}
+                {/* LOGOUT BUTTON - OPENS MODAL */}
                 <button
-                  onClick={handleLogout}
+                  onClick={handleOpenLogoutModal}
                   className="flex items-center gap-3 px-5 py-3.5 rounded-full font-body text-sm sm:text-base font-medium text-[#FF3333] hover:bg-[#FF3333]/10 transition-colors shrink-0 cursor-pointer"
                 >
                   <LogOut className="w-5 h-5" />
-
                   <span>Log Out</span>
                 </button>
               </nav>
@@ -131,14 +142,14 @@ export default function Profile() {
 
               {activeTab === "orders" && <MyOrders />}
 
-              {["wishlist", "payment", "settings"].includes(activeTab) && (
+              {activeTab === "settings" && <Setting />}
+
+              {["wishlist", "payment"].includes(activeTab) && (
                 <div className="flex flex-col items-center justify-center py-20 border border-black/10 rounded-2xl bg-[#F9F9F9]">
                   <Package className="w-12 h-12 text-black/20 mb-4" />
-
                   <h2 className="font-heading text-xl uppercase text-black mb-2">
                     Coming Soon
                   </h2>
-
                   <p className="font-body text-sm text-black/60">
                     This section is currently under development.
                   </p>
@@ -148,6 +159,16 @@ export default function Profile() {
           </div>
         </div>
       </div>
+
+      {/* CONFIRM LOGOUT MODAL */}
+      <ConfirmModal
+        open={logoutConfirm}
+        title="Log Out"
+        message="Are you sure you want to log out of your account?"
+        confirmText={isLoggingOut ? "Logging out..." : "Log Out"}
+        onConfirm={confirmLogout}
+        onCancel={() => setLogoutConfirm(false)}
+      />
 
       <Footer />
     </>

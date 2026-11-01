@@ -1,8 +1,5 @@
 import "./App.css";
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import Home from "./Pages/Home.jsx";
 import Signup from "./Pages/Signup.jsx";
@@ -14,6 +11,7 @@ import Profile from "./Pages/Profile.jsx";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import AdminDashboard from "./admin/AdminDashboard.jsx";
 
 const router = createBrowserRouter([
   {
@@ -44,6 +42,10 @@ const router = createBrowserRouter([
     path: "/profile",
     element: <Profile />,
   },
+  {
+    path: "/admin",
+    element: <AdminDashboard />,
+  },
 ]);
 
 function App() {
@@ -51,11 +53,7 @@ function App() {
     <>
       <RouterProvider router={router} />
 
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        theme="light"
-      />
+      <ToastContainer position="top-right" autoClose={3000} theme="light" />
     </>
   );
 }

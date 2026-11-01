@@ -41,7 +41,13 @@ const Login = () => {
 
       setUser(data.user);
       toast.success(data?.message || "Login successful!");
-      navigate("/");
+
+      if (data.user.role === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/");
+      }
+      
     } catch (error) {
       console.error("Login error:", error);
 
