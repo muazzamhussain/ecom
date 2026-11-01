@@ -1,24 +1,58 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { FaGoogle as Google, FaFacebook as Facebook } from "react-icons/fa";
 import AuthLayout from "../components/AuthLayout";
+import { toast } from "react-toastify";
+import { useNavigate, Link } from "react-router-dom";
+import API from "../lib/api";
+import { useAuth } from "../context/authContext";
 
 const Login = () => {
+  const navigate = useNavigate();
+  const { user, setUser } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
+
   const [form, setForm] = useState({
     email: "",
     password: "",
     remember: false,
   });
   const [showPwd, setShowPwd] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm((p) => ({ ...p, [name]: type === "checkbox" ? checked : value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login:", form);
+    try {
+      setLoading(true);
+      const { data } = await API.post("/auth/login", {
+        email: form.email.trim(),
+        password: form.password,
+      });
+
+      setUser(data.user);
+      toast.success(data?.message || "Login successful!");
+      navigate("/");
+    } catch (error) {
+      console.error("Login error:", error);
+
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Invalid email or password.",
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const inputClass =
@@ -92,10 +126,14 @@ const Login = () => {
         {/* Submit */}
         <button
           type="submit"
-          className="w-full h-12 flex items-center justify-center gap-2 bg-black text-white font-body font-medium text-sm rounded-full hover:bg-black/80 transition-colors cursor-pointer group"
+          disabled={loading}
+          className="w-full h-12 flex items-center justify-center gap-2 bg-black text-white font-body font-medium text-sm rounded-full hover:bg-black/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer group"
         >
-          Sign In
-          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          {loading ? "Signing In..." : "Sign In"}
+
+          {!loading && (
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          )}
         </button>
 
         {/* Divider */}
@@ -126,12 +164,12 @@ const Login = () => {
 
         <p className="text-center font-body text-sm text-black/60 pt-3">
           Don&apos;t have an account?{" "}
-          <a
-            href="/sign-up"
+          <Link
+            to="/sign-up"
             className="text-black font-semibold hover:underline"
           >
             Sign up
-          </a>
+          </Link>
         </p>
       </form>
     </AuthLayout>

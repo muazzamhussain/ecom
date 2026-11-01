@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import {
   User,
   Package,
@@ -7,19 +9,13 @@ import {
   Settings,
   LogOut,
 } from "lucide-react";
+
 import PersonalDetails from "../components/PersonalDetails";
 import MyOrders from "../components/MyOrders";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 
-// --- MOCK DATA ---
-
-const USER = {
-  name: "Alex K.",
-  email: "alex.k@example.com",
-  phone: "+1 (555) 123-4567",
-  address: "123 Fashion Ave, Suite 45, New York, NY 10001",
-};
+import { useAuth } from "../context/authContext";
 
 const NAV_ITEMS = [
   { id: "profile", label: "Personal Info", icon: User },
@@ -30,41 +26,74 @@ const NAV_ITEMS = [
 ];
 
 export default function Profile() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("profile");
+
+  const { user, logout, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      navigate("/login");
+    }
+  }, [user, isLoading, navigate]);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="font-body">Loading profile...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <>
       <Header />
+
       <div className="w-full bg-white pb-20 select-none">
         <div className="max-w-350 mx-auto px-4 sm:px-6 lg:px-8 pt-8 md:pt-12">
-          {/* Page Header */}
           <h1 className="font-heading text-2xl sm:text-4xl uppercase font-black tracking-wide text-black mb-8 md:mb-10">
             MY ACCOUNT
           </h1>
 
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
-            {/* ================= SIDEBAR (Navigation) ================= */}
+            {/* SIDEBAR */}
             <div className="w-full lg:w-70 shrink-0">
-              {/* User Mini Card (Desktop Only) */}
+              {/* USER MINI CARD */}
               <div className="hidden lg:flex items-center gap-4 mb-8 p-6 rounded-2xl border border-black/10">
-                <div className="w-14 h-14 rounded-full bg-black flex items-center justify-center text-white font-heading ">
-                  {USER.name.charAt(0)}
+                <div className="w-14 h-14 rounded-full bg-black flex items-center justify-center text-white font-heading text-xl">
+                  {user.name?.charAt(0).toUpperCase()}
                 </div>
-                <div>
-                  <h3 className="font-heading font-bold text-lg tracking-wider text-black">
-                    {USER.name}
+
+                <div className="min-w-0">
+                  <h3 className="font-heading font-bold text-lg tracking-wider text-black truncate">
+                    {user.name}
                   </h3>
-                  <p className="font-body text-sm text-black/60">
-                    {USER.email}
+
+                  <p className="font-body text-sm text-black/60 truncate">
+                    {user.email}
                   </p>
                 </div>
               </div>
 
-              {/* Navigation Tabs (Horizontal scroll on mobile, vertical list on desktop) */}
+              {/* NAVIGATION */}
               <nav className="flex lg:flex-col gap-2 overflow-x-auto no-scrollbar pb-2 lg:pb-0">
                 {NAV_ITEMS.map((item) => {
                   const Icon = item.icon;
                   const isActive = activeTab === item.id;
+
                   return (
                     <button
                       key={item.id}
@@ -76,6 +105,7 @@ export default function Profile() {
                       }`}
                     >
                       <Icon className="w-5 h-5" />
+
                       <span>{item.label}</span>
                     </button>
                   );
@@ -83,28 +113,32 @@ export default function Profile() {
 
                 <hr className="hidden lg:block border-black/10 my-4" />
 
-                <button className="flex items-center gap-3 px-5 py-3.5 rounded-full font-body text-sm sm:text-base font-medium text-[#FF3333] hover:bg-[#FF3333]/10 transition-colors shrink-0 cursor-pointer">
+                {/* LOGOUT */}
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 px-5 py-3.5 rounded-full font-body text-sm sm:text-base font-medium text-[#FF3333] hover:bg-[#FF3333]/10 transition-colors shrink-0 cursor-pointer"
+                >
                   <LogOut className="w-5 h-5" />
+
                   <span>Log Out</span>
                 </button>
               </nav>
             </div>
 
-            {/* ================= MAIN CONTENT AREA ================= */}
+            {/* MAIN CONTENT */}
             <div className="flex-1">
-              {/* --- TAB: PERSONAL INFO --- */}
               {activeTab === "profile" && <PersonalDetails />}
 
-              {/* --- TAB: ORDERS --- */}
               {activeTab === "orders" && <MyOrders />}
 
-              {/* Placeholder for other tabs */}
               {["wishlist", "payment", "settings"].includes(activeTab) && (
                 <div className="flex flex-col items-center justify-center py-20 border border-black/10 rounded-2xl bg-[#F9F9F9]">
                   <Package className="w-12 h-12 text-black/20 mb-4" />
+
                   <h2 className="font-heading text-xl uppercase text-black mb-2">
                     Coming Soon
                   </h2>
+
                   <p className="font-body text-sm text-black/60">
                     This section is currently under development.
                   </p>
@@ -114,6 +148,7 @@ export default function Profile() {
           </div>
         </div>
       </div>
+
       <Footer />
     </>
   );

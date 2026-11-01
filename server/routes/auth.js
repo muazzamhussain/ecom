@@ -1,26 +1,31 @@
 const express = require("express");
+
 const {
-  signup,
-  signin,
+  register,
+  login,
+  logout,
   getUserProfile,
   updateProfile,
   deleteUser,
   getUsers,
 } = require("../controllers/userController");
-const { verifyToken } = require("../middleware/authMiddleware");
+
+const { verifyToken, authorizeRoles } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-router.post("/sign-up", signup);
+// Public routes
+router.post("/register", register);
+router.post("/login", login);
+router.post("/logout", logout);
 
-router.post("/sign-in", signin);
+// Authenticated routes
+router.get("/me", verifyToken, getUserProfile);
+router.put("/profile", verifyToken, updateProfile);
 
-router.get("/profile", verifyToken, getUserProfile);
+// Admin-only routes
+router.get("/", verifyToken, authorizeRoles("admin"), getUsers);
 
-router.put("/profile", updateProfile);
-
-router.get("/", getUsers);
-
-router.delete("/:id", deleteUser);
+router.delete("/:id", verifyToken, authorizeRoles("admin"), deleteUser);
 
 module.exports = router;

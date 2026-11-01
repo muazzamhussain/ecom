@@ -1,4 +1,3 @@
-import React from "react";
 import { ShoppingBag } from "lucide-react";
 
 const AuthLayout = ({ title, subtitle, children }) => {
@@ -46,7 +45,7 @@ const AuthLayout = ({ title, subtitle, children }) => {
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-10 md:p-14">
         <div className="w-full max-w-md">
           <h1 className="lg:hidden font-heading text-3xl uppercase text-black tracking-tight text-center mb-8">
-            Shop.co
+            ECOM
           </h1>
 
           <h2 className="font-heading text-2xl sm:text-4xl uppercase text-black tracking-tight mb-2">

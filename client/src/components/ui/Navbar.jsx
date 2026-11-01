@@ -1,10 +1,13 @@
 import { ShoppingCart, CircleUserRound, Search, Menu } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../context/authContext";
 
 const Navbar = () => {
   const [openSidebar, setOpenSidebar] = useState(false);
   const [openSearch, setOpenSearch] = useState(false);
+
+  const { user } = useAuth();
 
   return (
     <div>
@@ -43,7 +46,7 @@ const Navbar = () => {
           <Link to="/cart">
             <ShoppingCart className="cursor-pointer" />
           </Link>
-          <Link to="/profile">
+          <Link to={user ? "/profile" : "/login"}>
             <CircleUserRound className="cursor-pointer" />
           </Link>
         </div>

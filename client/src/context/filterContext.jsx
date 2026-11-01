@@ -2,7 +2,7 @@ import { createContext, useContext, useState } from "react";
 
 const FilterContext = createContext();
 
-export function FilterStateProvider({ children }) {
+export const FilterStateProvider = ({ children }) => {
   const [filterOpen, setFilterOpen] = useState(false);
 
   const toggleFilterOpen = () => {
@@ -14,8 +14,8 @@ export function FilterStateProvider({ children }) {
       {children}
     </FilterContext.Provider>
   );
-}
+};
 
-export function useFilterOpen() {
+export const useFilterOpen = () => {
   return useContext(FilterContext);
-}
+};

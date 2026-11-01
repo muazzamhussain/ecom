@@ -1,12 +1,15 @@
 import { Edit2, MapPin } from "lucide-react";
+import { useAuth } from "../context/authContext";
 
 const PersonalDetails = () => {
-  const USER = {
-    name: "Alex K.",
-    email: "alex.k@example.com",
-    phone: "+1 (555) 123-4567",
-    address: "123 Fashion Ave, Suite 45, New York, NY 10001",
-  };
+  const { user } = useAuth();
+
+  const defaultAddress = user?.addresses?.find((addr) => addr.isDefault) || user?.addresses?.[0];
+  const formattedAddress = defaultAddress
+    ? [defaultAddress.street, defaultAddress.city, defaultAddress.state, defaultAddress.zipCode, defaultAddress.country]
+        .filter(Boolean)
+        .join(", ")
+    : "No address added yet";
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-300">
@@ -25,17 +28,17 @@ const PersonalDetails = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <p className="font-body text-sm text-black/60 mb-1">Full Name</p>
-            <p className="font-body font-medium text-black">{USER.name}</p>
+            <p className="font-body font-medium text-black">{user?.name || "N/A"}</p>
           </div>
           <div>
             <p className="font-body text-sm text-black/60 mb-1">
               Email Address
             </p>
-            <p className="font-body font-medium text-black">{USER.email}</p>
+            <p className="font-body font-medium text-black">{user?.email || "N/A"}</p>
           </div>
           <div>
-            <p className="font-body text-sm text-black/60 mb-1">Phone Number</p>
-            <p className="font-body font-medium text-black">{USER.phone}</p>
+            <p className="font-body text-sm text-black/60 mb-1">Role</p>
+            <p className="font-body font-medium capitalize text-black">{user?.role || "Customer"}</p>
           </div>
           <div>
             <p className="font-body text-sm text-black/60 mb-1">Password</p>
@@ -65,7 +68,7 @@ const PersonalDetails = () => {
               Default Address
             </p>
             <p className="font-body text-sm text-black/60 leading-relaxed max-w-sm">
-              {USER.address}
+              {formattedAddress}
             </p>
           </div>
         </div>

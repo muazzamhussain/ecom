@@ -1,9 +1,22 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { User, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { FaGoogle as Google, FaFacebook as Facebook } from "react-icons/fa";
 import AuthLayout from "../components/AuthLayout";
+import { toast } from "react-toastify";
+import { useNavigate, Link } from "react-router-dom";
+import API from "../lib/api";
+import { useAuth } from "../context/authContext";
 
 const Signup = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
+
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -12,15 +25,45 @@ const Signup = () => {
   });
   const [showPwd, setShowPwd] = useState(false);
 
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm((p) => ({ ...p, [name]: type === "checkbox" ? checked : value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.agree) return alert("Please accept the Terms & Privacy Policy.");
-    console.log("Signup:", form);
+
+    if (!form.agree) {
+      return toast.warning("Please accept the Terms & Privacy Policy.");
+    }
+
+    if (!/(?=.*[A-Za-z])(?=.*\d)/.test(form.password)) {
+      return toast.warning("Password must contain letters and numbers.");
+    }
+
+    try {
+      setLoading(true);
+      const { data } = await API.post("/auth/register", {
+        name: form.name.trim(),
+        email: form.email.trim(),
+        password: form.password,
+      });
+
+      toast.success(data?.message || "Account created successfully!");
+      navigate("/login");
+    } catch (error) {
+      console.error("Signup error:", error);
+
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Something went wrong. Please try again.",
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const inputClass =
@@ -110,10 +153,14 @@ const Signup = () => {
         {/* Submit */}
         <button
           type="submit"
-          className="w-full h-12 flex items-center justify-center gap-2 bg-black text-white font-body font-medium text-sm rounded-full hover:bg-black/80 transition-colors cursor-pointer group"
+          disabled={loading}
+          className="w-full h-12 flex items-center justify-center gap-2 bg-black text-white font-body font-medium text-sm rounded-full hover:bg-black/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer group"
         >
-          Create Account
-          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          {loading ? "Creating Account..." : "Create Account"}
+
+          {!loading && (
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          )}
         </button>
 
         {/* Divider */}
@@ -143,9 +190,9 @@ const Signup = () => {
         </div>
         <p className="text-center font-body text-sm text-black/60 pt-3">
           Already have an account?{" "}
-          <a href="/login" className="text-black font-semibold hover:underline">
+          <Link to="/login" className="text-black font-semibold hover:underline">
             Sign in
-          </a>
+          </Link>
         </p>
       </form>
     </AuthLayout>
