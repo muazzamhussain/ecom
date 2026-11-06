@@ -3,8 +3,8 @@ import { Check } from "lucide-react";
 
 const SettingsPage = () => {
   const [form, setForm] = useState({
-    storeName: "Shop.co",
-    email: "admin@shop.co",
+    storeName: "Ecom",
+    email: "admin@Ecom",
     notifications: true,
     darkMode: false,
   });

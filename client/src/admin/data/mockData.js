@@ -140,10 +140,10 @@ export const INITIAL_ORDERS = [
 ];
 
 export const INITIAL_CUSTOMERS = [
-  { id: 1, name: "Alex K.", email: "alex@shop.co", orders: 12, spent: 2840 },
-  { id: 2, name: "Sarah M.", email: "sarah@shop.co", orders: 8, spent: 1920 },
-  { id: 3, name: "James L.", email: "james@shop.co", orders: 15, spent: 3610 },
-  { id: 4, name: "Olivia P.", email: "olivia@shop.co", orders: 5, spent: 940 },
+  { id: 1, name: "Alex K.", email: "alex@Ecom", orders: 12, spent: 2840 },
+  { id: 2, name: "Sarah M.", email: "sarah@Ecom", orders: 8, spent: 1920 },
+  { id: 3, name: "James L.", email: "james@Ecom", orders: 15, spent: 3610 },
+  { id: 4, name: "Olivia P.", email: "olivia@Ecom", orders: 5, spent: 940 },
 ];
 
 export const TOP_PRODUCTS = [

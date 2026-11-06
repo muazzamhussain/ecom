@@ -139,7 +139,7 @@ const Signup = () => {
             className="w-4 h-4 mt-0.5 accent-black cursor-pointer shrink-0"
           />
           <span className="font-body text-sm text-black/70 leading-relaxed">
-            I agree to Shop.co&apos;s{" "}
+            I agree to Ecom&apos;s{" "}
             <a href="#" className="text-black font-medium hover:underline">
               Terms of Service
             </a>{" "}

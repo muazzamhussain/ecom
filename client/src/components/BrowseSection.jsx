@@ -3,22 +3,26 @@ import React from "react";
 const categories = [
   {
     title: "Casual",
-    image: "/assets/casual.png", // Replace with your image path
+    image:
+      "https://res.cloudinary.com/dfivgcj3i/image/upload/v1793442896/casual_bzyqtx.webp", // Replace with your image path
     colSpan: "md:col-span-1",
   },
   {
     title: "Formal",
-    image: "/assets/formal.png", // Replace with your image path
+    image:
+      "https://res.cloudinary.com/dfivgcj3i/image/upload/v1793442897/formal_vs6nog.webp", // Replace with your image path
     colSpan: "md:col-span-2",
   },
   {
     title: "Party",
-    image: "/assets/party.png", // Replace with your image path
+    image:
+      "https://res.cloudinary.com/dfivgcj3i/image/upload/v1793442901/party_glc3fe.webp", // Replace with your image path
     colSpan: "md:col-span-2",
   },
   {
     title: "Gym",
-    image: "/assets/gym.png", // Replace with your image path
+    image:
+      "https://res.cloudinary.com/dfivgcj3i/image/upload/v1793442898/gym_sdfggp.webp", // Replace with your image path
     colSpan: "md:col-span-1",
   },
 ];
@@ -38,7 +42,7 @@ const BrowseSection = () => {
           {categories.map((cat, index) => (
             <div
               key={index}
-              className={`relative h-55 overflow-hidden rounded-2xl bg-white p-6 transition-all duration-300 hover:scale-[1.01] sm:h-65 ${cat.colSpan}`}
+              className={`relative h-55 overflow-hidden rounded-2xl bg-white p-6 transition-all duration-300 border border-gray-300 hover:scale-[1.01] sm:h-65 ${cat.colSpan}`}
             >
               {/* Category Title */}
               <span className="relative z-10 text-sm font-semibold text-black font-body">

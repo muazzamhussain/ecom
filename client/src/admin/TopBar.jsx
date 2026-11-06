@@ -44,7 +44,7 @@ const TopBar = ({ onMenuClick, searchValue, onSearchChange, onBellClick }) => {
           <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center text-white font-heading">A</div>
           <div className="hidden md:block">
             <p className="font-heading text-sm font-bold text-black">Admin</p>
-            <p className="font-body text-xs text-black/60">admin@shop.co</p>
+            <p className="font-body text-xs text-black/60">admin@Ecom</p>
           </div>
         </div>
       </div>

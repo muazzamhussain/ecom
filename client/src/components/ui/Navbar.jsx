@@ -23,8 +23,8 @@ const Navbar = () => {
           <Link to="/">ECOM</Link>
         </h1>
         <ul className="gap-20 hidden md:flex">
-          <li className="cursor-pointer">New Arrivals</li>
-          <li className="cursor-pointer">Brands</li>
+          {/* <li className="cursor-pointer">New Arrivals</li>
+          <li className="cursor-pointer">Brands</li> */}
           <li className="cursor-pointer">
             <Link to="/products">Shop</Link>
           </li>

@@ -11,7 +11,7 @@ const Sidebar = ({ activeTab, onTabChange, open, onClose, onLogout }) => {
         }`}
       >
         <div className="p-6 flex items-center justify-between border-b border-black/10">
-          <h1 className="font-heading text-2xl uppercase tracking-tight text-black">Shop.co</h1>
+          <h1 className="font-heading text-2xl uppercase tracking-tight text-black">ECOM</h1>
           <button
             type="button"
             onClick={onClose}

@@ -8,7 +8,7 @@ const testimonials = [
     verified: true,
     rating: 5,
     comment:
-      "I'm blown away by the quality and style of the clothes I received from Shop.co. From casual wear to elegant dresses, every piece I've bought has exceeded my expectations.",
+      "I'm blown away by the quality and style of the clothes I received from Ecom. From casual wear to elegant dresses, every piece I've bought has exceeded my expectations.",
   },
   {
     id: 2,
@@ -16,7 +16,7 @@ const testimonials = [
     verified: true,
     rating: 5,
     comment:
-      "Finding clothes that align with my personal style used to be a challenge until I discovered Shop.co. The range of options they offer is truly remarkable, catering to a variety of tastes and occasions.",
+      "Finding clothes that align with my personal style used to be a challenge until I discovered Ecom. The range of options they offer is truly remarkable, catering to a variety of tastes and occasions.",
   },
   {
     id: 3,
@@ -24,7 +24,7 @@ const testimonials = [
     verified: true,
     rating: 5,
     comment:
-      "As someone who's always on the lookout for unique fashion pieces, I'm thrilled upon Shop.co. The selection of clothes is not only diverse but also on-point with the latest trends.",
+      "As someone who's always on the lookout for unique fashion pieces, I'm thrilled upon Ecom. The selection of clothes is not only diverse but also on-point with the latest trends.",
   },
   {
     id: 4,
@@ -32,7 +32,7 @@ const testimonials = [
     verified: true,
     rating: 5,
     comment:
-      "As someone who's always on the lookout for unique fashion pieces, I'm thrilled to have stumbled upon Shop.co. The selection is amazing and always on trend.",
+      "As someone who's always on the lookout for unique fashion pieces, I'm thrilled to have stumbled upon Ecom. The selection is amazing and always on trend.",
   },
   {
     id: 5,
@@ -40,7 +40,7 @@ const testimonials = [
     verified: true,
     rating: 5,
     comment:
-      "The customer service is top notch! Delivery was fast and the quality of fabrics is unmatched. Highly recommend Shop.co.",
+      "The customer service is top notch! Delivery was fast and the quality of fabrics is unmatched. Highly recommend Ecom.",
   },
   {
     id: 6,
@@ -56,7 +56,7 @@ const testimonials = [
     verified: true,
     rating: 5,
     comment:
-      "Shop.co has become my go-to online store. The variety is insane and the items always arrive beautifully packaged!",
+      "Ecom has become my go-to online store. The variety is insane and the items always arrive beautifully packaged!",
   },
 ];
 

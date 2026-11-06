@@ -123,7 +123,7 @@ const Footer = () => {
         {/* Bottom Bar: Copyright & Payment Badges */}
         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
           <p className="font-body text-xs md:text-sm text-black/60">
-            Shop.co © 2000-2023, All Rights Reserved
+            Ecom © 2000-2023, All Rights Reserved
           </p>
 
           {/* Payment Gateway Badges */}

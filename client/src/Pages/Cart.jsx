@@ -1,62 +1,18 @@
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import CartProductsList from "../components/ui/CartProductsList";
-import { BiSolidCoupon } from "react-icons/bi";
-import { ArrowRight } from "lucide-react";
+import OrderSummary from "../components/ui/OrderSummary";
 
 const Cart = () => {
   return (
     <div>
       <Header />
-      <h2 className="px-15 py-8 uppercase tracking-wide text-black md:mb-6 md:text-3xl font-heading">
+      <h2 className="px-5 py-8 uppercase tracking-wide text-black text-2xl md:mb-6 md:text-3xl font-heading">
         Your Cart
       </h2>
-      <div className="flex gap-10 mb-5 mr-40">
+      <div className="flex gap-10 mb-5 md:mr-40 flex-col md:flex-row">
         <CartProductsList />
-        <div className="summary border rounded-2xl border-gray-300 p-10 font-body h-110">
-          <h2 className="font-bold text-2xl py-5 font-body tracking-tight">
-            Order Summary
-          </h2>
-          <p className="flex w-110 justify-between py-1 font-semibold text-gray-400">
-            Subtotal <span className="font-bold text-black">$543</span>
-          </p>
-          <p className="flex w-110 justify-between py-1 font-semibold text-gray-400">
-            Discount <span className="font-bold text-red-500">-$13</span>
-          </p>
-          <p className="flex w-110 justify-between py-1 font-semibold text-gray-400">
-            Delivery Fee <span className="font-bold text-black">$43</span>
-          </p>
-
-          {/* Divider */}
-          <div className="my-3 border-t border-gray-300/70" />
-          <p className="flex w-110 justify-between py-2 font-semibold">
-            Total <span className="font-bold text-black">$600</span>
-          </p>
-
-          <div className="flex w-110 gap-4 py-2 pb-4 mx-auto">
-            <BiSolidCoupon
-              color="gray"
-              size={23}
-              className="relative left-12 top-2"
-            />
-            <input
-              type="text"
-              className="bg-gray rounded-3xl p-3 py-2 pl-9"
-              placeholder="coupon or promo code here"
-              size={30}
-            />
-            <button className="rounded-3xl bg-black text-white px-6 text-sm font-body py-1 cursor-pointer hover:bg-gray-200 hover:text-black hover:outline ">
-              Apply
-            </button>
-          </div>
-          <button
-            type="submit"
-            className="w-full h-12 flex items-center justify-center gap-2 bg-black text-white font-body font-medium text-sm rounded-full hover:bg-black/80 transition-colors cursor-pointer group"
-          >
-            Go to Checkout
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </button>
-        </div>
+        <OrderSummary />
       </div>
       <Footer />
     </div>

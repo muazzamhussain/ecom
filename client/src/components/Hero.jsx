@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const Hero = () => {
   return (
     <div className="md:h-160 md:bg-[url('hero.png')] md:p-25 md:bg-position-[80%_center] bg-gray">
@@ -9,10 +11,12 @@ const Hero = () => {
         designed to bring out your individuality and cater to your sense of
         style.
       </p>
-      <button className="bg-black rounded-full text-white py-2 md:px-16 font-body mt-5 cursor-pointer ml-4 px-25 text-sm md:text-md">
-        Shop Now
-      </button>
-
+      <Link to="/products">
+        {" "}
+        <button className="bg-black rounded-full text-white py-2 md:px-16 font-body mt-5 cursor-pointer ml-4 px-25 text-sm md:text-md">
+          Shop Now
+        </button>
+      </Link>
       <div className="numbers md:mt-20 mt-10 flex md:gap-20 p-4 gap-10 w-80 flex-wrap md:flex-nowrap justify-center md:justify-normal">
         <div className="brands">
           <h2 className="md:text-5xl font-bold text-lg text-center">200+</h2>
