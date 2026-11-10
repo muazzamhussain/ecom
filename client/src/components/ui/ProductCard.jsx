@@ -1,13 +1,8 @@
-
-import {
-  Star,
-  ShoppingCartPlus,
-  Minus,
-  Plus,
-} from "lucide-react";
+import { Star, ShoppingCartPlus, Minus, Plus } from "lucide-react";
 
 import { useCart } from "../../context/cartContext";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const ProductCard = ({
   image,
@@ -20,15 +15,15 @@ const ProductCard = ({
 }) => {
   const { addToCart, cart, updateQuantity } = useCart();
 
+  const navigate = useNavigate();
+
   const productId = product?._id || product?.id;
 
   const ratingValue =
-    typeof rating === "number" ? rating : rating?.average ?? 0;
+    typeof rating === "number" ? rating : (rating?.average ?? 0);
 
   // Find actual cart item
-  const cartItem = cart?.find(
-    (item) => (item._id || item.id) === productId
-  );
+  const cartItem = cart?.find((item) => (item._id || item.id) === productId);
 
   const isInCart = !!cartItem;
 
@@ -43,16 +38,20 @@ const ProductCard = ({
     updateQuantity(productId, quantity);
   };
 
+  const handleProductClick = () => {
+    navigate(`/products/${product._id}`);
+  };
+
   const finalPrice = discountPrice ?? price;
 
   return (
     <div className="group overflow-hidden rounded-2xl border border-gray-200 bg-white transition-all duration-300 hover:shadow-lg">
-
       {/* Product Image */}
       <div className="relative aspect-square overflow-hidden bg-gray-100">
         <img
           src={image}
           alt={title}
+          onClick={handleProductClick}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
 
@@ -65,8 +64,10 @@ const ProductCard = ({
 
       {/* Product Details */}
       <div className="p-3 sm:p-4">
-
-        <h3 className="font-semibold text-base sm:text-lg font-body line-clamp-1">
+        <h3
+          className="font-semibold text-base sm:text-lg font-body line-clamp-1"
+          onClick={handleProductClick}
+        >
           {title}
         </h3>
 
@@ -76,11 +77,7 @@ const ProductCard = ({
 
         {/* Rating */}
         <div className="mt-2 flex items-center gap-1.5 text-sm">
-          <Star
-            fill="orange"
-            stroke="orange"
-            size={16}
-          />
+          <Star fill="orange" stroke="orange" size={16} />
           <span className="font-medium">{ratingValue}</span>
         </div>
 
@@ -91,9 +88,7 @@ const ProductCard = ({
           </h3>
 
           {discountPrice != null && discountPrice < price && (
-            <span className="text-sm text-gray-400 line-through">
-              ${price}
-            </span>
+            <span className="text-sm text-gray-400 line-through">${price}</span>
           )}
         </div>
 
@@ -101,12 +96,11 @@ const ProductCard = ({
         <div className="mt-4">
           {isInCart ? (
             <div className="flex items-center justify-between rounded-full bg-gray-100 px-2 py-1.5">
-
               <button
                 type="button"
                 onClick={() =>
                   handleQuantityChange(
-                    Math.max(1, (cartItem.quantity || 1) - 1)
+                    Math.max(1, (cartItem.quantity || 1) - 1),
                   )
                 }
                 disabled={(cartItem.quantity || 1) <= 1}
@@ -130,7 +124,6 @@ const ProductCard = ({
               >
                 <Plus size={16} />
               </button>
-
             </div>
           ) : (
             <button

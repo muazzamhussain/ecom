@@ -37,7 +37,7 @@ const OrderSummary = () => {
   };
 
   return (
-    <div className="w-75 md:w-100 border border-gray-300 rounded-2xl m-5 p-5 lg:p-10 font-body">
+    <div className="w-75 md:w-200 border border-gray-300 rounded-2xl m-5 p-5 lg:p-10 font-body">
       <h2 className="font-bold text-2xl py-5 tracking-tight">Order Summary</h2>
 
       <div className="space-y-3">
@@ -81,7 +81,7 @@ const OrderSummary = () => {
             value={coupon}
             onChange={(e) => setCoupon(e.target.value)}
             placeholder="Coupon or promo code"
-            className="w-full bg-gray-100 rounded-full py-3 pl-11 pr-4 outline-none focus:ring-2 focus:ring-gray-300"
+            className="w-full bg-gray-100 rounded-full py-3 pl-11 pr-4 outline-none focus:ring-1 focus:ring-gray-300"
           />
         </div>
 

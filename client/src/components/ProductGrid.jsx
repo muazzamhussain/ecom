@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useFilterOpen } from "../context/filterContext";
 import API from "../lib/api";
 import ProductCard from "./ui/ProductCard";
 import { SlidersHorizontal } from "lucide-react";
 
-const ProductGrid = () => {
+const ProductGrid = ({ filters }) => {
   const { toggleFilterOpen } = useFilterOpen();
+
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -24,23 +25,94 @@ const ProductGrid = () => {
     fetchProducts();
   }, []);
 
+  // Filter Products
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) => {
+      // Price filter
+      const price = Number(product.salePrice ?? product.cost ?? 0);
+
+      const matchesPrice =
+        price >= (filters?.minPrice ?? 0) &&
+        price <= (filters?.maxPrice ?? Infinity);
+
+      // Category filter
+      const category =
+        typeof product.category === "object"
+          ? product.category?.name
+          : product.category;
+
+      const matchesCategory =
+        !filters?.category ||
+        category?.toLowerCase() === filters.category.toLowerCase();
+
+      // Size filter
+      const productSizes = Array.isArray(product.sizes)
+        ? product.sizes
+        : product.size
+          ? [product.size]
+          : [];
+
+      const matchesSize =
+        !filters?.sizes?.length ||
+        filters.sizes.some((size) =>
+          productSizes.some(
+            (item) => item.toLowerCase() === size.toLowerCase(),
+          ),
+        );
+
+      // Style filter
+      const productStyles = Array.isArray(product.styles)
+        ? product.styles
+        : product.style
+          ? [product.style]
+          : [];
+
+      const matchesStyle =
+        !filters?.styles?.length ||
+        filters.styles.some((style) =>
+          productStyles.some(
+            (item) => item.toLowerCase() === style.toLowerCase(),
+          ),
+        );
+
+      return matchesPrice && matchesCategory && matchesSize && matchesStyle;
+    });
+  }, [products, filters]);
+
   return (
-    <div className="p-8 w-300">
-      <h2 className="flex gap-4 mb-8 uppercase tracking-wider text-black md:mb-6 md:text-3xl font-heading">
+    <div className="p-4 sm:p-6 md:p-8 flex-1 min-w-0">
+      {/* Heading */}
+      <h2 className="flex items-center gap-4 mb-6 uppercase tracking-wider text-black text-xl sm:text-2xl md:text-3xl font-heading font-bold">
         <SlidersHorizontal
-          className="md:hidden cursor-pointer"
+          className="md:hidden cursor-pointer shrink-0"
           onClick={toggleFilterOpen}
         />
         Products
+        <span className="text-sm font-body font-normal text-gray-400 normal-case tracking-normal">
+          ({filteredProducts.length})
+        </span>
       </h2>
 
+      {/* Loading */}
       {loading ? (
-        <p>Loading products...</p>
-      ) : products.length === 0 ? (
-        <p>No products found.</p>
+        <div className="grid grid-cols-2 xl:grid-cols-3 gap-4">
+          {[1, 2, 3, 4, 5, 6].map((item) => (
+            <div
+              key={item}
+              className="aspect-3/4 rounded-2xl bg-gray-100 animate-pulse"
+            />
+          ))}
+        </div>
+      ) : filteredProducts.length === 0 ? (
+        <div className="text-center py-20">
+          <h3 className="font-heading text-xl font-bold">No products found</h3>
+          <p className="text-sm text-gray-400 mt-2">
+            Try changing your filters to see more products.
+          </p>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {products.map((product) => (
+        <div className="grid grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-5 lg:gap-6">
+          {filteredProducts.map((product) => (
             <ProductCard
               key={product._id}
               product={product}

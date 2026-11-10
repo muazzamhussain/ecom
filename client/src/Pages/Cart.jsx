@@ -10,7 +10,7 @@ const Cart = () => {
       <h2 className="px-5 py-8 uppercase tracking-wide text-black text-2xl md:mb-6 md:text-3xl font-heading">
         Your Cart
       </h2>
-      <div className="flex gap-10 mb-5 md:mr-40 flex-col md:flex-row">
+      <div className="flex gap-10 mb-5 m-8 flex-col md:flex-row">
         <CartProductsList />
         <OrderSummary />
       </div>

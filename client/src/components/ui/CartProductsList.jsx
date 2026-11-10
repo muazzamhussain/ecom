@@ -100,8 +100,10 @@ const CartProductsList = () => {
           ))
         ) : (
           <div className="py-12 text-center">
-            <h3 className="text-lg font-semibold">Your cart is empty</h3>
-            <p className="text-sm text-gray-400 mt-2">
+            <h3 className="text-lg font-semibold font-body">
+              Your cart is empty
+            </h3>
+            <p className="text-sm text-gray-400 mt-2 font-body">
               Add some products to get started.
             </p>
           </div>

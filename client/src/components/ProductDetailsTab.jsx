@@ -1,21 +1,6 @@
-import React from "react";
 import { Check } from "lucide-react";
 
-const ProductDetailsTab = () => {
-  const specs = [
-    { label: "Material", value: "100% Premium Heavyweight Cotton" },
-    { label: "Fit", value: "Relaxed, slightly oversized fit" },
-    { label: "Care", value: "Machine wash cold, tumble dry low" },
-    { label: "Origin", value: "Ethically crafted in Portugal" },
-  ];
-
-  const features = [
-    "Breathable, soft-touch fabric for all-day comfort",
-    "Reinforced double-stitched collar and hems",
-    "Fade-resistant, high-density graphic print",
-    "Pre-shrunk to maintain shape after washing",
-  ];
-
+const ProductDetailsTab = ({ product }) => {
   return (
     <div className="animate-in fade-in duration-300">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-8">
@@ -25,27 +10,47 @@ const ProductDetailsTab = () => {
             About this product
           </h3>
           <p className="font-body text-black/60 text-sm sm:text-base leading-relaxed mb-8">
-            Elevate your everyday wardrobe with the One Life Graphic T-Shirt.
-            Meticulously crafted from heavyweight, ultra-soft cotton, it offers
-            a premium feel and a relaxed drape that flatters any body type. The
-            bold typography is printed using eco-friendly, fade-resistant inks,
-            ensuring your statement piece lasts season after season.
+            {product?.description}
           </p>
 
           <div className="space-y-4">
-            {specs.map((spec, idx) => (
-              <div
-                key={idx}
-                className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 border-b border-black/10 pb-4"
-              >
+            <div className="flex flex-col gap-3 border-b border-black/10 pb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
                 <span className="font-body font-bold text-black sm:w-24 shrink-0">
-                  {spec.label}
+                  Material
                 </span>
                 <span className="font-body text-black/60 text-sm">
-                  {spec.value}
+                  {product.material}
                 </span>
               </div>
-            ))}
+
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                <span className="font-body font-bold text-black sm:w-24 shrink-0">
+                  Fit
+                </span>
+                <span className="font-body text-black/60 text-sm">
+                  {product.fit}
+                </span>
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                <span className="font-body font-bold text-black sm:w-24 shrink-0">
+                  Care
+                </span>
+                <span className="font-body text-black/60 text-sm">
+                  {product.care}
+                </span>
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                <span className="font-body font-bold text-black sm:w-24 shrink-0">
+                  Origin
+                </span>
+                <span className="font-body text-black/60 text-sm">
+                  {product.origin}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -55,7 +60,7 @@ const ProductDetailsTab = () => {
             Key Features
           </h3>
           <ul className="space-y-4">
-            {features.map((feature, idx) => (
+            {product?.keyFeatures.map((feature, idx) => (
               <li key={idx} className="flex items-start gap-3">
                 <div className="w-6 h-6 rounded-full bg-black flex items-center justify-center shrink-0 mt-0.5">
                   <Check className="w-3.5 h-3.5 text-white" />
