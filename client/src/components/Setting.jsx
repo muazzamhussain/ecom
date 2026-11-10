@@ -255,7 +255,7 @@ export default function SettingsTab() {
       {/* Page header */}
 
       <div>
-        <h2 className="font-heading font-bold text-xl sm:text-2xl uppercase tracking-tight text-black">
+        <h2 className="font-body font-bold text-xl sm:text-2xl uppercase tracking-tight text-black">
           Settings
         </h2>
 
@@ -285,11 +285,10 @@ export default function SettingsTab() {
               aria-selected={isActive}
               tabIndex={isActive ? 0 : -1}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 min-w-fit flex items-center justify-center gap-2 px-5 py-2.5 rounded-full font-body text-sm font-medium whitespace-nowrap transition-colors cursor-pointer ${
-                isActive
+              className={`flex-1 min-w-fit flex items-center justify-center gap-2 px-5 py-2.5 rounded-full font-body text-sm font-medium whitespace-nowrap transition-colors cursor-pointer ${isActive
                   ? "bg-black text-white"
                   : "text-black/60 hover:text-black"
-              }`}
+                }`}
             >
               <Icon className="w-4 h-4" />
 
@@ -322,7 +321,7 @@ export default function SettingsTab() {
             draft={draft}
             update={update}
             sessions={[]}
-            onRevoke={() => {}}
+            onRevoke={() => { }}
             onDeleteRequest={() => setDeleteOpen(true)}
             editingPassword={editingPassword}
             setEditingPassword={setEditingPassword}
@@ -363,7 +362,7 @@ export default function SettingsTab() {
               <AlertTriangle className="w-7 h-7 text-[#FF3333]" />
             </div>
 
-            <h3 className="font-heading font-bold text-2xl uppercase tracking-tight mb-2">
+            <h3 className="font-body font-bold text-2xl uppercase tracking-tight mb-2">
               Delete Account
             </h3>
 

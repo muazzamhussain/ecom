@@ -96,11 +96,14 @@ export default function ProductDetail() {
   const handleAddToCart = () => {
     if (!product) return;
 
-    addToCart(product);
+    addToCart(product, qty);
     toast.success("Product added to cart");
   };
 
-  const isInCart = cart.some((item) => String(item.id) === String(product.id));
+  const productId = product?._id || product?.id;
+  const isInCart = cart.some(
+    (item) => String(item.productId || item._id) === String(productId),
+  );
 
   if (loading) {
     return (

@@ -31,7 +31,7 @@ const SecuritySection = ({
           onSubmit={savePassword}
           className="mt-6 pt-6 border-t border-black/10 space-y-4 animate-in fade-in"
         >
-          <h3 className="font-heading font-bold text-base uppercase">
+          <h3 className="font-body font-bold text-base uppercase">
             Change Password
           </h3>
 
@@ -136,7 +136,7 @@ const SecuritySection = ({
       {/* Active sessions */}
 
       <div>
-        <p className="font-heading font-bold text-xs uppercase tracking-wider text-black/50 mb-3">
+        <p className="font-body font-bold text-xs uppercase tracking-wider text-black/50 mb-3">
           Active Sessions
         </p>
 
@@ -194,7 +194,7 @@ const SecuritySection = ({
 
       <div className="rounded-2xl border border-[#FF3333]/30 p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <p className="font-heading font-bold text-base uppercase text-[#FF3333]">
+          <p className="font-body font-bold text-base uppercase text-[#FF3333]">
             Delete Account
           </p>
 

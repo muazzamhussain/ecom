@@ -4,23 +4,10 @@ import { ArrowRight } from "lucide-react";
 import { useCart } from "../../context/cartContext";
 
 const OrderSummary = () => {
-  const { cart } = useCart();
+  const { cart, subTotal, discount, deliveryFee, totalPrice } = useCart();
   const [coupon, setCoupon] = useState("");
 
-  const subTotal = cart.reduce(
-    (acc, curr) => acc + curr.salePrice * curr.quantity,
-    0,
-  );
-
-  const discount = cart.reduce(
-    (acc, curr) => acc + (curr.price - curr.salePrice) * curr.quantity,
-    0,
-  );
-
-  const deliveryFee = cart.length > 0 ? 9.99 : 0;
-  const total = subTotal + deliveryFee;
-
-  const formatPrice = (price) => `$${price.toFixed(2)}`;
+  const formatPrice = (price = 0) => `$${Number(price || 0).toFixed(2)}`;
 
   const handleApplyCoupon = () => {
     if (!coupon.trim()) return;
@@ -65,7 +52,7 @@ const OrderSummary = () => {
 
       <p className="flex justify-between py-2 font-semibold">
         Total
-        <span className="font-bold text-black">{formatPrice(total)}</span>
+        <span className="font-bold text-black">{formatPrice(totalPrice)}</span>
       </p>
 
       {/* Coupon */}

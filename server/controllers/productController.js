@@ -172,6 +172,39 @@ const createProductReview = async (req, res) => {
   }
 };
 
+const searchProducts = async (req, res) => {
+  try {
+    const { q } = req.query;
+
+    if (!q || !q.trim()) {
+      return res.status(200).json({
+        success: true,
+        products: [],
+      });
+    }
+
+    const products = await Product.find({
+      $or: [
+        { name: { $regex: q.trim(), $options: "i" } },
+        { category: { $regex: q.trim(), $options: "i" } },
+        { brand: { $regex: q.trim(), $options: "i" } },
+      ],
+    }).limit(20);
+
+    return res.status(200).json({
+      success: true,
+      products,
+    });
+  } catch (error) {
+    console.error("Search products error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong while searching products",
+    });
+  }
+};
+
 module.exports = {
   createProduct,
   getProducts,
@@ -179,4 +212,5 @@ module.exports = {
   deleteProduct,
   getProductById,
   createProductReview,
+  searchProducts,
 };

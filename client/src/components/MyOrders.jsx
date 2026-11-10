@@ -308,24 +308,21 @@ const OrderDetail = ({ order, onBack }) => {
                     {/* rail */}
                     <div className="flex flex-col items-center">
                       <div
-                        className={`w-3.5 h-3.5 rounded-full shrink-0 mt-1 ${
-                          step.done ? "bg-black" : "bg-black/20"
-                        }`}
+                        className={`w-3.5 h-3.5 rounded-full shrink-0 mt-1 ${step.done ? "bg-black" : "bg-black/20"
+                          }`}
                       />
                       {!isLast && (
                         <div
-                          className={`w-0.5 flex-1 min-h-10 ${
-                            step.done ? "bg-black" : "bg-black/10"
-                          }`}
+                          className={`w-0.5 flex-1 min-h-10 ${step.done ? "bg-black" : "bg-black/10"
+                            }`}
                         />
                       )}
                     </div>
                     {/* content */}
                     <div className={`${isLast ? "pb-0" : "pb-6"}`}>
                       <p
-                        className={`font-heading font-bold text-sm ${
-                          step.done ? "text-black" : "text-black/40"
-                        }`}
+                        className={`font-heading font-bold text-sm ${step.done ? "text-black" : "text-black/40"
+                          }`}
                       >
                         {step.label}
                       </p>
@@ -570,8 +567,8 @@ const OrdersList = ({ orders, onOpen }) => {
               {order.status === "Delivered"
                 ? "Buy Again"
                 : order.trackingNumber
-                ? "Track Order"
-                : "View Status"}
+                  ? "Track Order"
+                  : "View Status"}
             </button>
           </div>
         </div>

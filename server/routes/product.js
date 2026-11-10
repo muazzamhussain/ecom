@@ -6,9 +6,12 @@ const {
   updateProduct,
   getProductById,
   createProductReview,
+  searchProducts,
 } = require("../controllers/productController");
 
 const router = express.Router();
+
+router.get("/search", searchProducts);
 
 router.post("/", createProduct);
 

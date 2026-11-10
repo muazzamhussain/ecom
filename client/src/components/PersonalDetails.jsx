@@ -78,20 +78,20 @@ const PersonalDetails = () => {
 
   const formattedAddress = defaultAddress
     ? [
-        defaultAddress.street,
+      defaultAddress.street,
 
-        defaultAddress.city,
+      defaultAddress.city,
 
-        defaultAddress.state,
+      defaultAddress.state,
 
-        defaultAddress.zipCode,
+      defaultAddress.zipCode,
 
-        defaultAddress.country,
-      ]
+      defaultAddress.country,
+    ]
 
-        .filter(Boolean)
+      .filter(Boolean)
 
-        .join(", ")
+      .join(", ")
     : "No address added yet";
 
   // ── Personal Info handlers ──
@@ -224,7 +224,7 @@ const PersonalDetails = () => {
 
       <div className="border border-black/10 rounded-2xl p-6 sm:p-8">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="font-heading font-bold text-xl sm:text-2xl uppercase tracking-tight">
+          <h2 className="font-body font-bold text-xl sm:text-2xl uppercase tracking-tight">
             Personal Details
           </h2>
 
@@ -367,7 +367,7 @@ const PersonalDetails = () => {
 
       <div className="border border-black/10 rounded-2xl p-6 sm:p-8">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="font-heading font-bold text-xl sm:text-2xl uppercase tracking-tight">
+          <h2 className="font-body font-bold text-xl sm:text-2xl uppercase tracking-tight">
             Shipping Address
           </h2>
 
@@ -403,7 +403,7 @@ const PersonalDetails = () => {
             </div>
 
             <div>
-              <p className="font-heading font-bold text-base mb-1">
+              <p className="font-body font-bold text-base mb-1">
                 Default Address
               </p>
 

@@ -23,7 +23,9 @@ const ProductCard = ({
     typeof rating === "number" ? rating : (rating?.average ?? 0);
 
   // Find actual cart item
-  const cartItem = cart?.find((item) => (item._id || item.id) === productId);
+  const cartItem = cart?.find(
+    (item) => String(item.productId || item._id) === String(productId),
+  );
 
   const isInCart = !!cartItem;
 

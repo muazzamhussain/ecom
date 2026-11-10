@@ -30,9 +30,11 @@ const addOrderItems = async (req, res) => {
           "Inventory conflict: One or more selected items are out of stock",
       });
 
+    const userId = req.user.id || req.user._id;
+
     const order = new Order({
       orderItems,
-      userId: req.user._id,
+      userId,
       shippingAddress,
       itemsPrice,
       taxPrice,

@@ -1,6 +1,6 @@
 import SectionHeader from "./ui/SectionHeader";
 import Toggle from "./ui/Toggle";
-import { Mail, MessageSquare, TrendingDown,Package,Tag,Newspaper } from "lucide-react";
+import { Mail, MessageSquare, TrendingDown, Package, Tag, Newspaper } from "lucide-react";
 
 const NotificationsSection = ({ draft, update, setAllNotifications }) => {
   const allOn = Object.values(draft.notifications).every(Boolean);
@@ -105,7 +105,7 @@ const NotificationsSection = ({ draft, update, setAllNotifications }) => {
       <div className="space-y-6">
         {NOTIFICATION_GROUPS.map((group) => (
           <div key={group.title}>
-            <p className="font-heading font-bold text-xs uppercase tracking-wider text-black/50 mb-2">
+            <p className="font-body font-bold text-xs uppercase tracking-wider text-black/50 mb-2">
               {group.title}
             </p>
 

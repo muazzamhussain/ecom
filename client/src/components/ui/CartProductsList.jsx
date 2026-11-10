@@ -15,7 +15,7 @@ const CartProductsList = () => {
             >
               {/* Product Image */}
               <img
-                src={product.images?.[0]}
+                src={product.images?.[0] || product.image || ""}
                 alt={product.name}
                 className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-xl bg-gray-100 shrink-0"
               />
@@ -30,7 +30,9 @@ const CartProductsList = () => {
 
                     {/* Remove */}
                     <button
-                      onClick={() => removeFromCart(product._id)}
+                      onClick={() =>
+                        removeFromCart(product._id || product.productId)
+                      }
                       className="text-red-500 hover:text-red-700 transition cursor-pointer shrink-0"
                       aria-label="Remove product"
                     >
@@ -45,21 +47,26 @@ const CartProductsList = () => {
                   {/* Pricing */}
                   <div className="flex items-center gap-2 sm:gap-3 mt-3">
                     <span className="font-bold text-lg sm:text-xl">
-                      ${product.salePrice}
+                      ${product.salePrice ?? product.price}
                     </span>
 
-                    <span className="text-gray-400 line-through text-sm sm:text-base">
-                      ${product.price}
-                    </span>
+                    {product.price > (product.salePrice ?? product.price) && (
+                      <>
+                        <span className="text-gray-400 line-through text-sm sm:text-base">
+                          ${product.price}
+                        </span>
 
-                    <span className="text-red-500 bg-red-100 rounded-full px-2 py-1 text-[10px] sm:text-xs font-medium">
-                      -
-                      {Math.round(
-                        ((product.price - product.salePrice) / product.price) *
-                          100,
-                      )}
-                      %
-                    </span>
+                        <span className="text-red-500 bg-red-100 rounded-full px-2 py-1 text-[10px] sm:text-xs font-medium">
+                          -
+                          {Math.round(
+                            ((product.price - product.salePrice) /
+                              product.price) *
+                              100,
+                          )}
+                          %
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -69,7 +76,7 @@ const CartProductsList = () => {
                     <button
                       onClick={() =>
                         updateQuantity(
-                          product._id,
+                          product._id || product.productId,
                           Math.max(1, product.quantity - 1),
                         )
                       }
@@ -86,7 +93,10 @@ const CartProductsList = () => {
 
                     <button
                       onClick={() =>
-                        updateQuantity(product._id, product.quantity + 1)
+                        updateQuantity(
+                          product._id || product.productId,
+                          product.quantity + 1,
+                        )
                       }
                       className="p-2 hover:text-gray-500 cursor-pointer"
                       aria-label="Increase quantity"

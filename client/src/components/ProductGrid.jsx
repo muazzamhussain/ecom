@@ -1,5 +1,7 @@
+
 import { useEffect, useMemo, useState } from "react";
 import { useFilterOpen } from "../context/filterContext";
+import { useSearchParams } from "react-router-dom";
 import API from "../lib/api";
 import ProductCard from "./ui/ProductCard";
 import { SlidersHorizontal } from "lucide-react";
@@ -7,27 +9,62 @@ import { SlidersHorizontal } from "lucide-react";
 const ProductGrid = ({ filters }) => {
   const { toggleFilterOpen } = useFilterOpen();
 
+  const [searchParams] = useSearchParams();
+  const search = searchParams.get("search") || "";
+
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchProducts = async () => {
-    try {
-      const result = await API.get("/product");
-      setProducts(result.data);
-    } catch (error) {
-      console.error("Error fetching products:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Fetch products based on search
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    let isMounted = true;
+
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+
+        let result;
+
+        if (search.trim()) {
+          result = await API.get("/product/search", {
+            params: { q: search.trim() },
+          });
+        } else {
+          result = await API.get("/product");
+        }
+
+        if (isMounted) {
+          // Supports both array and { products: [] } responses
+          const data = result.data.products ?? result.data;
+          setProducts(Array.isArray(data) ? data : []);
+        }
+
+      } catch (error) {
+        console.error("Error fetching products:", error);
+
+        if (isMounted) {
+          setProducts([]);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    const timer = setTimeout(fetchProducts, 400);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
+
+  }, [search]);
 
   // Filter Products
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
+
       // Price filter
       const price = Number(product.salePrice ?? product.cost ?? 0);
 
@@ -56,8 +93,8 @@ const ProductGrid = ({ filters }) => {
         !filters?.sizes?.length ||
         filters.sizes.some((size) =>
           productSizes.some(
-            (item) => item.toLowerCase() === size.toLowerCase(),
-          ),
+            (item) => item.toLowerCase() === size.toLowerCase()
+          )
         );
 
       // Style filter
@@ -71,23 +108,32 @@ const ProductGrid = ({ filters }) => {
         !filters?.styles?.length ||
         filters.styles.some((style) =>
           productStyles.some(
-            (item) => item.toLowerCase() === style.toLowerCase(),
-          ),
+            (item) => item.toLowerCase() === style.toLowerCase()
+          )
         );
 
-      return matchesPrice && matchesCategory && matchesSize && matchesStyle;
+      return (
+        matchesPrice &&
+        matchesCategory &&
+        matchesSize &&
+        matchesStyle
+      );
     });
   }, [products, filters]);
 
   return (
     <div className="p-4 sm:p-6 md:p-8 flex-1 min-w-0">
+
       {/* Heading */}
       <h2 className="flex items-center gap-4 mb-6 uppercase tracking-wider text-black text-xl sm:text-2xl md:text-3xl font-heading font-bold">
+
         <SlidersHorizontal
           className="md:hidden cursor-pointer shrink-0"
           onClick={toggleFilterOpen}
         />
-        Products
+
+        {search ? `Search: ${search}` : "Products"}
+
         <span className="text-sm font-body font-normal text-gray-400 normal-case tracking-normal">
           ({filteredProducts.length})
         </span>
@@ -105,9 +151,12 @@ const ProductGrid = ({ filters }) => {
         </div>
       ) : filteredProducts.length === 0 ? (
         <div className="text-center py-20">
-          <h3 className="font-heading text-xl font-bold">No products found</h3>
+          <h3 className="font-heading text-xl font-bold">
+            No products found
+          </h3>
+
           <p className="text-sm text-gray-400 mt-2">
-            Try changing your filters to see more products.
+            Try changing your search or filters to see more products.
           </p>
         </div>
       ) : (
