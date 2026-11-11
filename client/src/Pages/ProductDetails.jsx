@@ -354,7 +354,12 @@ export default function ProductDetail() {
 
               {activeTab === "FAQs" && <FAQsTab />}
 
-              {activeTab === "Rating & Reviews" && <ProductReviews reviews={product.reviews} />}
+              {activeTab === "Rating & Reviews" && (
+                <ProductReviews
+                  reviews={product.reviews}
+                  productId={productId}
+                />
+              )}
             </div>
           </div>
         </div>

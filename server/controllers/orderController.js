@@ -88,7 +88,7 @@ const getOrderById = async (req, res) => {
 
 const getMyOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ userId: req.user.id });
+    const orders = await Order.find({ userId: req.user._id });
     res.status(200).json(orders);
   } catch (error) {
     console.log("Error getting my orders " + error);

@@ -159,7 +159,7 @@ const createProductReview = async (req, res) => {
       product.ratings.count = product.reviews.length;
       product.ratings.average =
         product.reviews.reduce((acc, item) => item.rating + acc, 0) /
-        items.reviews.length;
+        product.reviews.length;
 
       await product.save();
       res.status(200).json({ message: "Review added successfully" });

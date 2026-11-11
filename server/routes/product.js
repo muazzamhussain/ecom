@@ -8,6 +8,7 @@ const {
   createProductReview,
   searchProducts,
 } = require("../controllers/productController");
+const { verifyToken } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
@@ -23,6 +24,6 @@ router.put("/", updateProduct);
 
 router.get("/:id", getProductById);
 
-router.post("/:id/review", createProductReview);
+router.post("/:id/review", verifyToken, createProductReview);
 
 module.exports = router;
