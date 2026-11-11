@@ -50,7 +50,7 @@ const SettingsPage = () => {
         ].map(([key, title, desc]) => (
           <label key={key} className="flex items-center justify-between p-4 rounded-2xl bg-[#F9F9F9] cursor-pointer">
             <div>
-              <p className="font-heading font-bold text-sm">{title}</p>
+              <p className="font-body font-bold text-sm">{title}</p>
               <p className="font-body text-xs text-black/60">{desc}</p>
             </div>
             <input

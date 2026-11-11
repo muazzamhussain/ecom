@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 import DashboardPage from "./pages/DashboardPage";
@@ -8,11 +8,8 @@ import CustomersPage from "./pages/CustomersPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import SettingsPage from "./pages/SettingsPage";
 import ConfirmModal from "../components/ConfirmModal";
-import {
-  INITIAL_PRODUCTS,
-  INITIAL_ORDERS,
-  INITIAL_CUSTOMERS,
-} from "./data/mockData";
+import { INITIAL_PRODUCTS, INITIAL_CUSTOMERS } from "./data/mockData";
+import API from "../lib/api";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -21,9 +18,9 @@ const AdminDashboard = () => {
   const [logoutConfirm, setLogoutConfirm] = useState(false);
 
   // Entity state
-  const [products, setProducts] = useState(INITIAL_PRODUCTS);
-  const [orders] = useState(INITIAL_ORDERS);
-  const [customers] = useState(INITIAL_CUSTOMERS);
+  const [products, setProducts] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [customers, setCustomers] = useState([]);
 
   // Signal child to open "add" form
   const [addProductTick, setAddProductTick] = useState(0);
@@ -58,6 +55,37 @@ const AdminDashboard = () => {
     alert("Logged out successfully!");
     // real app: clear auth + redirect
   };
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const result = await API.get("/order");
+        setOrders(result.data);
+      } catch (error) {
+        console.error("Error fetching orders", error);
+      }
+    };
+    const fetchProducts = async () => {
+      try {
+        const result = await API.get("/product");
+        setProducts(result.data);
+      } catch (error) {
+        console.error("Error fetching products", error);
+      }
+    };
+    const fetchCustomers = async () => {
+      try {
+        const result = await API.get("/auth");
+        setCustomers(result.data.users);
+      } catch (error) {
+        console.error("Error fetching customers", error);
+      }
+    };
+
+    fetchOrders();
+    fetchProducts();
+    fetchCustomers();
+  }, []);
 
   const renderPage = () => {
     switch (activeTab) {

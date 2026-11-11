@@ -117,18 +117,18 @@ const ProductsPage = ({ products, onAdd, onUpdate, onDelete, searchValue, initia
             </thead>
             <tbody>
               {filtered.map((product) => (
-                <tr key={product.id} className="border-t border-black/5 hover:bg-[#F9F9F9]/50 transition-colors">
+                <tr key={product._id} className="border-t border-black/5 hover:bg-[#F9F9F9]/50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-xl bg-[#F0EEED] flex items-center justify-center shrink-0">
                         <Package className="w-5 h-5 text-black/20" />
                       </div>
-                      <span className="font-heading font-bold text-sm text-black">{product.name}</span>
+                      <span className="font-body font-bold text-sm text-black">{product.name}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4 font-body text-sm text-black/60">{product.category}</td>
                   <td className="px-6 py-4">
-                    <span className="font-heading font-bold text-sm">${product.price}</span>
+                    <span className="font-body font-bold text-sm">${product.price}</span>
                     {product.oldPrice && (
                       <span className="font-body text-xs text-black/30 line-through ml-2">
                         ${product.oldPrice}
@@ -167,16 +167,16 @@ const ProductsPage = ({ products, onAdd, onUpdate, onDelete, searchValue, initia
 
         <div className="md:hidden divide-y divide-black/5">
           {filtered.map((product) => (
-            <div key={product.id} className="p-5">
+            <div key={product._id} className="p-5">
               <div className="flex items-start gap-3 mb-3">
                 <div className="w-14 h-14 rounded-xl bg-[#F0EEED] flex items-center justify-center shrink-0">
                   <Package className="w-6 h-6 text-black/20" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-heading font-bold text-sm truncate">{product.name}</p>
+                  <p className="font-body font-bold text-sm truncate">{product.name}</p>
                   <p className="font-body text-xs text-black/60">{product.category}</p>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="font-heading font-bold text-base">${product.price}</span>
+                    <span className="font-body font-bold text-base">${product.price}</span>
                     <span className={`font-body text-xs font-medium px-2 py-0.5 rounded-full ${getStatusColor(product.status)}`}>
                       {product.status}
                     </span>

@@ -19,10 +19,10 @@ const TopProducts = ({ onViewAll }) => {
               {idx + 1}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-heading font-bold text-sm text-black truncate">{p.name}</p>
+              <p className="font-body font-bold text-sm text-black truncate">{p.name}</p>
               <p className="font-body text-xs text-black/60">{p.sold} sold</p>
             </div>
-            <span className="font-heading font-bold text-sm text-black shrink-0">
+            <span className="font-body font-bold text-sm text-black shrink-0">
               ${(p.revenue / 1000).toFixed(1)}k
             </span>
           </div>

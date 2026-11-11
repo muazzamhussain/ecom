@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Search, X } from "lucide-react";
 import OrdersTable from "../components/OrdersTable";
 import { getStatusColor } from "../data/mockData";
@@ -59,10 +59,12 @@ const OrdersPage = ({ orders, searchValue }) => {
               <X className="w-4 h-4" />
             </button>
 
-            <h3 className="font-heading font-bold text-2xl uppercase tracking-tight mb-1">
+            <h3 className="font-body font-bold text-2xl uppercase tracking-tight mb-1">
               Order Details
             </h3>
-            <p className="font-body text-sm text-black/60 mb-6">{selected.id}</p>
+            <p className="font-body text-sm text-black/60 mb-6">
+              {selected.id}
+            </p>
 
             <div className="space-y-4">
               {[
@@ -71,15 +73,20 @@ const OrdersPage = ({ orders, searchValue }) => {
                 ["Date", selected.date],
                 ["Total", `$${selected.total.toFixed(2)}`],
               ].map(([k, v]) => (
-                <div key={k} className="flex justify-between border-b border-black/5 pb-3">
+                <div
+                  key={k}
+                  className="flex justify-between border-b border-black/5 pb-3"
+                >
                   <span className="font-body text-sm text-black/60">{k}</span>
-                  <span className="font-heading font-bold text-sm">{v}</span>
+                  <span className="font-body font-bold text-sm">{v}</span>
                 </div>
               ))}
 
               <div className="flex justify-between items-center pt-1">
                 <span className="font-body text-sm text-black/60">Status</span>
-                <span className={`font-body text-xs font-medium px-3 py-1.5 rounded-full ${getStatusColor(selected.status)}`}>
+                <span
+                  className={`font-body text-xs font-medium px-3 py-1.5 rounded-full ${getStatusColor(selected.status)}`}
+                >
                   {selected.status}
                 </span>
               </div>
