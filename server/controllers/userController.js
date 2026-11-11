@@ -197,7 +197,7 @@ const updateProfile = async (req, res) => {
       });
     }
 
-    const { name, email, password, addresses } = req.body;
+    const { name, email, password, phone, addresses } = req.body;
 
     // Update name
     if (name !== undefined) {
@@ -249,6 +249,17 @@ const updateProfile = async (req, res) => {
       user.password = await bcrypt.hash(password, 10);
     }
 
+    // Update Phone Number
+    if (phone !== undefined) {
+      if (phone.length < 11) {
+        return res.status(400).json({
+          success: false,
+          message: "Phone must be at least 11 characters",
+        });
+      }
+      user.phone = phone;
+    }
+
     // Update addresses
     if (addresses !== undefined) {
       if (!Array.isArray(addresses)) {
@@ -271,6 +282,7 @@ const updateProfile = async (req, res) => {
         id: updatedUser._id,
         name: updatedUser.name,
         email: updatedUser.email,
+        phone: updatedUser.phone,
         role: updatedUser.role,
         addresses: updatedUser.addresses,
       },

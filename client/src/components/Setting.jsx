@@ -255,7 +255,7 @@ export default function SettingsTab() {
       {/* Page header */}
 
       <div>
-        <h2 className="font-body font-bold text-xl sm:text-2xl uppercase tracking-tight text-black">
+        <h2 className="font-heading font-semibold text-xl sm:text-2xl uppercase tracking-wide text-black">
           Settings
         </h2>
 

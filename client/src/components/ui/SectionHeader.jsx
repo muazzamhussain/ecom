@@ -1,6 +1,6 @@
 const SectionHeader = ({ title, description }) => (
   <div className="mb-6">
-    <h3 className="font-heading font-bold text-lg sm:text-xl uppercase tracking-tight text-black">
+    <h3 className="font-body font-bold text-lg sm:text-xl uppercase tracking-tight text-black">
       {title}
     </h3>
 

@@ -11,6 +11,7 @@ const ProductSchema = mongoose.Schema(
     brand: { type: String },
     images: [{ type: String }],
     stock: { type: Number, required: true, default: 0 },
+    soldCount: { type: Number, default: 0, min: 0 },
     ratings: {
       average: { type: Number, default: 0 },
       count: { type: Number, default: 0 },

@@ -12,6 +12,7 @@ const userSchema = new mongoose.Schema(
     },
     password: { type: String, required: true }, // Encrypted with bcryptjs
     role: { type: String, enum: ["customer", "admin"], default: "customer" },
+    phone: { type: String, trim: true },
     addresses: [
       {
         street: String,

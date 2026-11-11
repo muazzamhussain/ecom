@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Edit2, MapPin, Check, X, Plus } from "lucide-react";
 import { useAuth } from "../context/authContext";
 import API from "../lib/api";
+import { toast } from "react-toastify";
 
 const inputClass =
   "w-full h-11 px-4 font-body text-sm text-black bg-[#F0F0F0] rounded-full border border-transparent focus:border-black focus:bg-white focus:outline-none transition-all";
@@ -78,20 +79,20 @@ const PersonalDetails = () => {
 
   const formattedAddress = defaultAddress
     ? [
-      defaultAddress.street,
+        defaultAddress.street,
 
-      defaultAddress.city,
+        defaultAddress.city,
 
-      defaultAddress.state,
+        defaultAddress.state,
 
-      defaultAddress.zipCode,
+        defaultAddress.zipCode,
 
-      defaultAddress.country,
-    ]
+        defaultAddress.country,
+      ]
 
-      .filter(Boolean)
+        .filter(Boolean)
 
-      .join(", ")
+        .join(", ")
     : "No address added yet";
 
   // ── Personal Info handlers ──
@@ -135,6 +136,7 @@ const PersonalDetails = () => {
       } else {
         setUser((current) => ({ ...current, ...infoForm }));
       }
+      toast("Account info updated successfully");
       setEditingInfo(false);
     } catch (err) {
       console.error(err);
@@ -204,6 +206,7 @@ const PersonalDetails = () => {
       } else {
         setUser((current) => ({ ...current, addresses }));
       }
+      toast("Address updated successfully");
       setEditingAddress(false);
     } catch (err) {
       console.error(err);
@@ -224,7 +227,7 @@ const PersonalDetails = () => {
 
       <div className="border border-black/10 rounded-2xl p-6 sm:p-8">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="font-body font-bold text-xl sm:text-2xl uppercase tracking-tight">
+          <h2 className="font-heading font-semibold text-xl sm:text-2xl uppercase tracking-tight">
             Personal Details
           </h2>
 

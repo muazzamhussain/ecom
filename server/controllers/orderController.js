@@ -17,8 +17,16 @@ const addOrderItems = async (req, res) => {
   try {
     const bulkOps = orderItems.map((item) => ({
       updateOne: {
-        filter: { _id: item.productId, stock: { $gte: item.quantity } },
-        update: { $inc: { stock: -item.quantity } },
+        filter: {
+          _id: item.productId,
+          stock: { $gte: item.quantity },
+        },
+        update: {
+          $inc: {
+            stock: -item.quantity,
+            soldCount: item.quantity,
+          },
+        },
       },
     }));
 
@@ -80,7 +88,7 @@ const getOrderById = async (req, res) => {
 
 const getMyOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ userId: req.user._id });
+    const orders = await Order.find({ userId: req.user.id });
     res.status(200).json(orders);
   } catch (error) {
     console.log("Error getting my orders " + error);

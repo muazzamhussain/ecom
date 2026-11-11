@@ -1,120 +1,115 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
+import API from "../lib/api";
 import ProductCard from "./ui/ProductCard";
 
 const ProductSection = () => {
-  const newArrivals = [
-    {
-      title: "T-shirt with Tape Details",
-      image: "shirt.png",
-      rating: "4.5/5",
-      price: 120,
-      discountPrice: null,
-    },
-    {
-      title: "Skinny Fit Jeans",
-      image: "jeans.png",
-      rating: "3.5/5",
-      price: 260,
-      discountPrice: 240,
-    },
-    {
-      title: "Checkered Shirt",
-      image: "check-shirt.png",
-      rating: "4.5/5",
-      price: 180,
-      discountPrice: null,
-    },
-    {
-      title: "Sleeve Striped T-shirt",
-      image: "striped-shirt.png",
-      rating: "4.5/5",
-      price: 160,
-      discountPrice: 130,
-    },
-  ];
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const topSelling = [
-    {
-      title: "Vertical Striped Shirt",
-      image: "vertical-shirt.png",
-      rating: "5.0/5",
-      price: 232,
-      discountPrice: 212,
-    },
-    {
-      title: "Courage Graphic T-shirt",
-      image: "courage-shirt.png",
-      rating: "4.0/5",
-      price: 145,
-      discountPrice: null,
-    },
-    {
-      title: "Loose Fit Bermuda Shorts",
-      image: "shorts.png",
-      rating: "3.0/5",
-      price: 80,
-      discountPrice: null,
-    },
-    {
-      title: "Faded Skinny Jeans",
-      image: "faded-jeans.png",
-      rating: "4.5/5",
-      price: 210,
-      discountPrice: null,
-    },
-  ];
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await API.get("/product");
+
+        // Supports either an array or { products: [...] }
+        const data = response.data.products ?? response.data;
+
+        if (!Array.isArray(data)) {
+          throw new Error("Invalid products response");
+        }
+
+        setProducts(data);
+      } catch (err) {
+        console.error("Failed to fetch products:", err);
+        setError("Unable to load products. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  // Latest products first
+  const newArrivals = [...products]
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt || 0).getTime() -
+        new Date(a.createdAt || 0).getTime(),
+    )
+    .slice(0, 4);
+
+  // Products with the highest completed sales first
+  const topSelling = [...products]
+    .sort((a, b) => (b.soldCount || 0) - (a.soldCount || 0))
+    .slice(0, 4);
+
+  const renderProducts = (items) => (
+    <div className="w-full mt-8 sm:mt-10 grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6 justify-items-center">
+      {items.map((product) => (
+        <ProductCard
+          key={product._id}
+          product={product}
+          title={product.name}
+          desc={product.description}
+          image={product.images?.[0] ?? product.image?.[0] ?? product.image}
+          rating={product.ratings}
+          price={product.cost}
+          discountPrice={product.salePrice}
+        />
+      ))}
+    </div>
+  );
+
+  const renderSection = (title, items) => (
+    <>
+      <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl uppercase text-center tracking-tight">
+        {title}
+      </h2>
+
+      {items.length > 0 ? (
+        renderProducts(items)
+      ) : (
+        <p className="mt-8 text-center text-gray-500 font-body">
+          No products available yet.
+        </p>
+      )}
+
+      <Link
+        to="/products"
+        className="inline-flex items-center gap-2 font-body font-semibold border border-black/20 rounded-full mt-8 sm:mt-10 px-10 sm:px-14 py-2.5 sm:py-3 text-sm hover:bg-black hover:text-white transition-colors duration-300"
+      >
+        View All
+        <ArrowRight size={16} />
+      </Link>
+    </>
+  );
 
   return (
     <section className="w-full px-4 sm:px-6 md:px-10 lg:px-16 xl:px-24 py-12 sm:py-16 md:py-20 flex flex-col items-center">
-      {/* ========== NEW ARRIVALS ========== */}
-      <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl uppercase text-center tracking-tight">
-        New Arrivals
-      </h2>
+      {loading ? (
+        <div className="w-full grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div
+              key={index}
+              className="aspect-3/4 rounded-2xl bg-gray-100 animate-pulse"
+            />
+          ))}
+        </div>
+      ) : error ? (
+        <p className="text-center text-red-500 font-body">{error}</p>
+      ) : (
+        <>
+          {renderSection("New Arrivals", newArrivals)}
 
-      {/* Products Grid */}
-      <div className="w-full mt-8 sm:mt-10 grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6 justify-items-center">
-        {newArrivals.map((product, index) => (
-          <ProductCard
-            key={`new-${index}`}
-            title={product.title}
-            image={product.image}
-            rating={product.rating}
-            price={product.price}
-            discountPrice={product.discountPrice}
-          />
-        ))}
-      </div>
+          <hr className="w-full border-t border-black/10 my-10 sm:my-14 md:my-16" />
 
-      {/* View All Button */}
-      <button className="font-body font-semibold border border-black/20 rounded-full mt-8 sm:mt-10 px-10 sm:px-14 py-2.5 sm:py-3 text-sm hover:bg-black hover:text-white transition-colors duration-300 cursor-pointer">
-        View All
-      </button>
-
-      {/* Divider */}
-      <hr className="w-full border-t border-black/10 my-10 sm:my-14 md:my-16" />
-
-      {/* ========== TOP SELLING ========== */}
-      <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl uppercase text-center tracking-tight">
-        Top Selling
-      </h2>
-
-      {/* Products Grid */}
-      <div className="w-full mt-8 sm:mt-10 grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6 justify-items-center">
-        {topSelling.map((product, index) => (
-          <ProductCard
-            key={`top-${index}`}
-            title={product.title}
-            image={product.image}
-            rating={product.rating}
-            price={product.price}
-            discountPrice={product.discountPrice}
-          />
-        ))}
-      </div>
-
-      {/* View All Button */}
-      <button className="font-body font-semibold border border-black/20 rounded-full mt-8 sm:mt-10 px-10 sm:px-14 py-2.5 sm:py-3 text-sm hover:bg-black hover:text-white transition-colors duration-300 cursor-pointer">
-        View All
-      </button>
+          {renderSection("Top Selling", topSelling)}
+        </>
+      )}
     </section>
   );
 };
