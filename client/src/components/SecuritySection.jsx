@@ -14,6 +14,7 @@ const SecuritySection = ({
   setPasswordForm,
   savingPassword,
   passwordError,
+  setPasswordError,
   savePassword,
 }) => {
   const inputClass =
@@ -27,94 +28,106 @@ const SecuritySection = ({
         />
 
         {/* ── PASSWORD CHANGE (inline expand) ── */}
-        <form
-          onSubmit={savePassword}
-          className="mt-6 pt-6 border-t border-black/10 space-y-4 animate-in fade-in"
-        >
-          <h3 className="font-body font-bold text-base uppercase">
+        {editingPassword ? (
+          <form
+            onSubmit={savePassword}
+            className="mt-6 pt-6 border-t border-black/10 space-y-4 animate-in fade-in"
+          >
+            <h3 className="font-body font-bold text-base uppercase">
+              Change Password
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className="font-body text-sm text-black/60 mb-1.5 block">
+                  Current Password
+                </label>
+
+                <input
+                  type="password"
+                  value={passwordForm.current}
+                  onChange={(e) =>
+                    setPasswordForm((p) => ({ ...p, current: e.target.value }))
+                  }
+                  className={inputClass}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="font-body text-sm text-black/60 mb-1.5 block">
+                  New Password
+                </label>
+
+                <input
+                  type="password"
+                  value={passwordForm.next}
+                  onChange={(e) =>
+                    setPasswordForm((p) => ({ ...p, next: e.target.value }))
+                  }
+                  className={inputClass}
+                  minLength={8}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="font-body text-sm text-black/60 mb-1.5 block">
+                  Confirm New
+                </label>
+
+                <input
+                  type="password"
+                  value={passwordForm.confirm}
+                  onChange={(e) =>
+                    setPasswordForm((p) => ({ ...p, confirm: e.target.value }))
+                  }
+                  className={inputClass}
+                  minLength={8}
+                  required
+                />
+              </div>
+            </div>
+
+            {passwordError && (
+              <p className="font-body text-sm text-[#FF3333]">
+                {passwordError}
+              </p>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                type="submit"
+                disabled={savingPassword}
+                className="h-11 px-6 bg-black text-white font-body text-sm font-medium rounded-full hover:bg-black/80 transition-colors cursor-pointer disabled:opacity-60"
+              >
+                {savingPassword ? "Updating..." : "Update Password"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingPassword(false);
+
+                  setPasswordForm({ current: "", next: "", confirm: "" });
+
+                  setPasswordError("");
+                }}
+                className="h-11 px-6 border border-black/10 font-body text-sm font-medium rounded-full hover:bg-[#F0F0F0] transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setEditingPassword(true)}
+            className="h-11 px-6 bg-black text-white font-body text-sm font-medium rounded-full hover:bg-black/80 transition-colors cursor-pointer disabled:opacity-60"
+          >
             Change Password
-          </h3>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label className="font-body text-sm text-black/60 mb-1.5 block">
-                Current Password
-              </label>
-
-              <input
-                type="password"
-                value={passwordForm.current}
-                onChange={(e) =>
-                  setPasswordForm((p) => ({ ...p, current: e.target.value }))
-                }
-                className={inputClass}
-                required
-              />
-            </div>
-
-            <div>
-              <label className="font-body text-sm text-black/60 mb-1.5 block">
-                New Password
-              </label>
-
-              <input
-                type="password"
-                value={passwordForm.next}
-                onChange={(e) =>
-                  setPasswordForm((p) => ({ ...p, next: e.target.value }))
-                }
-                className={inputClass}
-                minLength={8}
-                required
-              />
-            </div>
-
-            <div>
-              <label className="font-body text-sm text-black/60 mb-1.5 block">
-                Confirm New
-              </label>
-
-              <input
-                type="password"
-                value={passwordForm.confirm}
-                onChange={(e) =>
-                  setPasswordForm((p) => ({ ...p, confirm: e.target.value }))
-                }
-                className={inputClass}
-                minLength={8}
-                required
-              />
-            </div>
-          </div>
-
-          {passwordError && (
-            <p className="font-body text-sm text-[#FF3333]">{passwordError}</p>
-          )}
-
-          <div className="flex gap-3">
-            <button
-              type="submit"
-              disabled={savingPassword}
-              className="h-11 px-6 bg-black text-white font-body text-sm font-medium rounded-full hover:bg-black/80 transition-colors cursor-pointer disabled:opacity-60"
-            >
-              {savingPassword ? "Updating..." : "Update Password"}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setEditingPassword(false);
-
-                setPasswordForm({ current: "", next: "", confirm: "" });
-
-                setPasswordError("");
-              }}
-              className="h-11 px-6 border border-black/10 font-body text-sm font-medium rounded-full hover:bg-[#F0F0F0] transition-colors cursor-pointer"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
+          </button>
+        )}
 
         <Toggle
           icon={ShieldCheck}

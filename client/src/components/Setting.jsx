@@ -1,110 +1,95 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import API from "../lib/api";
-import { useAuth } from "../context/authContext";
-
 import {
   SlidersHorizontal,
   Bell,
   ShieldCheck,
-  MessageSquare,
-  Mail,
-  TrendingDown,
-  Package,
-  Tag,
-  Newspaper,
-  Smartphone,
-  Monitor,
   Check,
   Loader2,
   AlertTriangle,
   X,
-  Trash2,
+  Save,
+  RotateCcw,
 } from "lucide-react";
+
+import API from "../lib/api";
+import { useAuth } from "../context/authContext";
 import GeneralSection from "./GeneralSection";
-import NotificationsSection from "./NotificationSection";
+import NotificationSection from "./NotificationSection";
 import SecuritySection from "./SecuritySection";
-import SaveBar from "./ui/SaveBar";
 
-// ─────────────────────────────────────────────
-
-// CONSTANTS
-
-// ─────────────────────────────────────────────
-
-const STORAGE_KEY = "shopco-settings";
+// --------------------------------------------------
+// DEFAULT PREFERENCES
+// Keys must match the Mongoose schema and the section components.
+// --------------------------------------------------
 
 const DEFAULTS = {
-  language: "English",
-
-  currency: "USD",
-
-  timezone: "America/New_York",
+  general: {
+    language: "English",
+    currency: "USD",
+    timezone: "Asia/Karachi",
+  },
 
   notifications: {
     orderUpdates: true,
-
     orderSms: false,
-
     priceDrops: true,
-
     restock: true,
-
-    promotions: true,
-
+    promotions: false,
     newsletter: false,
   },
 
   security: {
     twoFactor: false,
-
     loginAlerts: true,
   },
 };
 
 const TABS = [
   { id: "general", label: "General", icon: SlidersHorizontal },
-
   { id: "notifications", label: "Notifications", icon: Bell },
-
   { id: "security", label: "Security", icon: ShieldCheck },
 ];
 
-
 const inputClass =
-  "w-full h-11 px-4 font-body text-sm text-black bg-[#F0F0F0] rounded-full border border-transparent focus:border-black focus:bg-white focus:outline-none transition-all";
+  "w-full h-11 px-4 font-body text-sm text-black bg-[#F0F0F0] rounded-full border border-transparent focus:border-black focus:bg-white focus:outline-none transition-all disabled:opacity-50";
 
-// Load persisted settings, merged with defaults
+// --------------------------------------------------
+// NORMALIZE API DATA
+// --------------------------------------------------
 
-const loadSettings = () => {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+const normalizePreferences = (preferences = {}) => ({
+  general: { ...DEFAULTS.general, ...(preferences.general || {}) },
+  notifications: {
+    ...DEFAULTS.notifications,
+    ...(preferences.notifications || {}),
+  },
+  security: { ...DEFAULTS.security, ...(preferences.security || {}) },
+});
 
-    if (!raw) return DEFAULTS;
-
-    const parsed = JSON.parse(raw);
-
-    return {
-      ...DEFAULTS,
-
-      ...parsed,
-
-      notifications: { ...DEFAULTS.notifications, ...parsed.notifications },
-
-      security: { ...DEFAULTS.security, ...parsed.security },
-    };
-  } catch {
-    return DEFAULTS;
-  }
-};
-
-// MAIN SETTINGS TAB
-
+// --------------------------------------------------
+// MAIN SETTINGS PAGE
+// --------------------------------------------------
 
 export default function SettingsTab() {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
+  // Preferences
+  const [saved, setSaved] = useState(DEFAULTS);
+  const [draft, setDraft] = useState(DEFAULTS);
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [loadError, setLoadError] = useState("");
+
+  // Tabs
+  const [activeTab, setActiveTab] = useState("general");
+
+  // Sessions (populate from backend when available)
+  const [sessions, setSessions] = useState([]);
+
+  // Password
   const [editingPassword, setEditingPassword] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
     current: "",
@@ -114,46 +99,159 @@ export default function SettingsTab() {
   const [savingPassword, setSavingPassword] = useState(false);
   const [passwordError, setPasswordError] = useState("");
 
-  const [activeTab, setActiveTab] = useState("general");
-
-  const [saved, setSaved] = useState(loadSettings); // committed settings
-
-  const [draft, setDraft] = useState(saved); // editable copy
-
-  const [saving, setSaving] = useState(false);
-
-  const [toast, setToast] = useState("");
-
+  // Delete account
   const [deleteOpen, setDeleteOpen] = useState(false);
-
   const [deleteText, setDeleteText] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
-  const isDirty = JSON.stringify(draft) !== JSON.stringify(saved);
+  // Feedback
+  const [toast, setToast] = useState("");
+  const [toastError, setToastError] = useState(false);
+
+  const isDirty = useMemo(
+    () => JSON.stringify(draft) !== JSON.stringify(saved),
+    [draft, saved],
+  );
+
+  // --------------------------------------------------
+  // FETCH PREFERENCES
+  // --------------------------------------------------
+
+  const fetchPreferences = async () => {
+    setLoading(true);
+    setLoadError("");
+
+    try {
+      const { data } = await API.get("/preferences");
+      const normalized = normalizePreferences(data.preferences);
+
+      setSaved(normalized);
+      setDraft(normalized);
+    } catch (error) {
+      console.error("Fetch preferences error:", error);
+      setLoadError(
+        error.response?.data?.message || "Unable to load your preferences.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPreferences();
+  }, []);
+
+  // --------------------------------------------------
+  // TOAST
+  // --------------------------------------------------
+
+  const showToast = (message, isError = false) => {
+    setToast(message);
+    setToastError(isError);
+  };
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(""), 3000);
+    return () => clearTimeout(timer);
+  }, [toast]);
+
+  // --------------------------------------------------
+  // LOCAL DRAFT UPDATES
+  // --------------------------------------------------
+
+  const updatePreference = (section, key, value) => {
+    setDraft((prev) => ({
+      ...prev,
+      [section]: { ...prev[section], [key]: value },
+    }));
+  };
+
+  const setAllNotifications = (value) => {
+    setDraft((prev) => ({
+      ...prev,
+      notifications: Object.fromEntries(
+        Object.keys(prev.notifications).map((key) => [key, value]),
+      ),
+    }));
+  };
+
+  // GeneralSection calls update(null, key, value)
+  const updateGeneral = (_, key, value) =>
+    updatePreference("general", key, value);
+
+  // --------------------------------------------------
+  // SAVE / DISCARD
+  // --------------------------------------------------
+
+  const handleSave = async () => {
+    if (!isDirty || saving) return;
+
+    setSaving(true);
+
+    try {
+      const { data } = await API.patch("/preferences", {
+        general: draft.general,
+        notifications: draft.notifications,
+        security: draft.security,
+      });
+
+      const normalized = normalizePreferences(data.preferences);
+
+      setSaved(normalized);
+      setDraft(normalized);
+
+      showToast(data.message || "Preferences saved successfully.");
+    } catch (error) {
+      console.error("Save preferences error:", error);
+      showToast(
+        error.response?.data?.message || "Failed to save preferences.",
+        true,
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDiscard = () => {
+    setDraft(normalizePreferences(saved));
+  };
+
+  // --------------------------------------------------
+  // PASSWORD
+  // --------------------------------------------------
 
   const savePassword = async (e) => {
     e.preventDefault();
+    if (savingPassword) return;
     setPasswordError("");
 
-    if (passwordForm.next.length < 8) {
-      setPasswordError("New password must be at least 8 characters.");
-      return;
-    }
-    if (passwordForm.next !== passwordForm.confirm) {
-      setPasswordError("Passwords do not match.");
-      return;
-    }
+    const { current, next, confirm } = passwordForm;
+
+    if (!current || !next || !confirm)
+      return setPasswordError("Please fill in all password fields.");
+    if (next.length < 8)
+      return setPasswordError("New password must be at least 8 characters.");
+    if (next !== confirm)
+      return setPasswordError("New passwords do not match.");
+    if (current === next)
+      return setPasswordError(
+        "New password must differ from your current one.",
+      );
 
     setSavingPassword(true);
+
     try {
-      const { data } = await API.post("/auth/change-password", {
-        currentPassword: passwordForm.current,
-        newPassword: passwordForm.next,
+      await API.put("/auth/profile", {
+        currentPassword: current,
+        password: next,
       });
+
+      showToast("Password updated successfully.");
       setPasswordForm({ current: "", next: "", confirm: "" });
       setEditingPassword(false);
-      setToast(data.message || "Password updated successfully.");
     } catch (error) {
-      console.error("Change password error:", error);
+      console.error("Password update error:", error);
       setPasswordError(
         error.response?.data?.message || "Failed to update password.",
       );
@@ -162,97 +260,110 @@ export default function SettingsTab() {
     }
   };
 
-  // Auto-hide toast
+  // --------------------------------------------------
+  // SESSIONS
+  // Endpoint is a placeholder; adjust to your backend.
+  // --------------------------------------------------
 
-  useEffect(() => {
-    if (!toast) return;
-
-    const t = setTimeout(() => setToast(""), 2500);
-
-    return () => clearTimeout(t);
-  }, [toast]);
-
-  // Warn before leaving with unsaved changes
-
-  useEffect(() => {
-    const handler = (e) => {
-      if (isDirty) {
-        e.preventDefault();
-
-        e.returnValue = "";
-      }
-    };
-
-    window.addEventListener("beforeunload", handler);
-
-    return () => window.removeEventListener("beforeunload", handler);
-  }, [isDirty]);
-
-  // Generic updater: top-level key (section = null) or nested section key
-
-  const update = (section, key, value) => {
-    setDraft((prev) =>
-      section
-        ? { ...prev, [section]: { ...prev[section], [key]: value } }
-        : { ...prev, [key]: value },
-    );
-  };
-
-  const setAllNotifications = (value) => {
-    setDraft((prev) => ({
-      ...prev,
-
-      notifications: Object.fromEntries(
-        Object.keys(prev.notifications).map((k) => [k, value]),
-      ),
-    }));
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
+  const handleRevokeSession = async (id) => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
-      setSaved(draft);
-      setToast("Preferences saved on this device.");
+      await API.delete(`/auth/sessions/${id}`);
+      setSessions((prev) => prev.filter((s) => s.id !== id));
+      showToast("Signed out of that device.");
     } catch (error) {
-      console.error("Could not persist settings:", error);
-      setToast("Could not save settings.");
-    } finally {
-      setSaving(false);
+      console.error("Revoke session error:", error);
+      showToast(
+        error.response?.data?.message || "Failed to sign out device.",
+        true,
+      );
     }
   };
 
-  const handleDiscard = () => setDraft(saved);
+  // --------------------------------------------------
+  // DELETE ACCOUNT
+  // --------------------------------------------------
 
   const handleDeleteAccount = async () => {
-    if (deleteText !== "DELETE") return;
+    if (deleteText !== "DELETE" || deleting) return;
+
+    setDeleting(true);
 
     try {
-      await API.delete("/auth/account");
+      await API.delete(`/auth/${user?._id}`);
       await logout();
+
       setDeleteOpen(false);
       setDeleteText("");
       navigate("/sign-up", { replace: true });
     } catch (error) {
       console.error("Delete account error:", error);
-      setToast(error.response?.data?.message || "Failed to delete account.");
+      showToast(
+        error.response?.data?.message || "Failed to delete account.",
+        true,
+      );
+    } finally {
+      setDeleting(false);
     }
   };
 
-  // Keyboard navigation for tabs (← →)
+  const closeDeleteModal = () => {
+    setDeleteOpen(false);
+    setDeleteText("");
+  };
+
+  // --------------------------------------------------
+  // KEYBOARD TAB NAVIGATION
+  // --------------------------------------------------
 
   const handleTabKey = (e) => {
-    const idx = TABS.findIndex((t) => t.id === activeTab);
+    const index = TABS.findIndex((tab) => tab.id === activeTab);
 
-    if (e.key === "ArrowRight") setActiveTab(TABS[(idx + 1) % TABS.length].id);
+    if (e.key === "ArrowRight") {
+      setActiveTab(TABS[(index + 1) % TABS.length].id);
+    }
 
-    if (e.key === "ArrowLeft")
-      setActiveTab(TABS[(idx - 1 + TABS.length) % TABS.length].id);
+    if (e.key === "ArrowLeft") {
+      setActiveTab(TABS[(index - 1 + TABS.length) % TABS.length].id);
+    }
   };
+
+  // --------------------------------------------------
+  // LOADING / ERROR STATES
+  // --------------------------------------------------
+
+  if (loading) {
+    return (
+      <div className="min-h-64 flex items-center justify-center">
+        <Loader2 className="w-7 h-7 animate-spin" />
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="border border-black/10 rounded-2xl p-8 text-center">
+        <AlertTriangle className="w-8 h-8 mx-auto text-red-500 mb-3" />
+
+        <p className="font-body text-sm mb-4">{loadError}</p>
+
+        <button
+          type="button"
+          onClick={fetchPreferences}
+          className="px-6 py-2.5 rounded-full bg-black text-white text-sm cursor-pointer"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
+  // --------------------------------------------------
+  // RENDER
+  // --------------------------------------------------
 
   return (
     <div className="relative space-y-6 animate-in fade-in duration-300">
-      {/* Page header */}
+      {/* PAGE HEADER */}
 
       <div>
         <h2 className="font-heading font-semibold text-xl sm:text-2xl uppercase tracking-wide text-black">
@@ -264,7 +375,7 @@ export default function SettingsTab() {
         </p>
       </div>
 
-      {/* Tab bar */}
+      {/* TAB BAR */}
 
       <div
         role="tablist"
@@ -274,7 +385,6 @@ export default function SettingsTab() {
       >
         {TABS.map((tab) => {
           const Icon = tab.icon;
-
           const isActive = activeTab === tab.id;
 
           return (
@@ -285,33 +395,33 @@ export default function SettingsTab() {
               aria-selected={isActive}
               tabIndex={isActive ? 0 : -1}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 min-w-fit flex items-center justify-center gap-2 px-5 py-2.5 rounded-full font-body text-sm font-medium whitespace-nowrap transition-colors cursor-pointer ${isActive
+              className={`flex-1 min-w-fit flex items-center justify-center gap-2 px-5 py-2.5 rounded-full font-body text-sm font-medium whitespace-nowrap transition-colors cursor-pointer ${
+                isActive
                   ? "bg-black text-white"
                   : "text-black/60 hover:text-black"
-                }`}
+              }`}
             >
               <Icon className="w-4 h-4" />
-
               {tab.label}
             </button>
           );
         })}
       </div>
 
-      {/* Panel */}
+      {/* SETTINGS PANEL */}
 
       <div
         role="tabpanel"
         className="border border-black/10 rounded-2xl p-5 sm:p-8"
       >
         {activeTab === "general" && (
-          <GeneralSection draft={draft} update={update} />
+          <GeneralSection draft={draft.general} update={updateGeneral} />
         )}
 
         {activeTab === "notifications" && (
-          <NotificationsSection
+          <NotificationSection
             draft={draft}
-            update={update}
+            update={updatePreference}
             setAllNotifications={setAllNotifications}
           />
         )}
@@ -319,9 +429,9 @@ export default function SettingsTab() {
         {activeTab === "security" && (
           <SecuritySection
             draft={draft}
-            update={update}
-            sessions={[]}
-            onRevoke={() => { }}
+            update={updatePreference}
+            sessions={sessions}
+            onRevoke={handleRevokeSession}
             onDeleteRequest={() => setDeleteOpen(true)}
             editingPassword={editingPassword}
             setEditingPassword={setEditingPassword}
@@ -329,47 +439,72 @@ export default function SettingsTab() {
             setPasswordForm={setPasswordForm}
             savingPassword={savingPassword}
             passwordError={passwordError}
+            setPasswordError={setPasswordError}
             savePassword={savePassword}
           />
         )}
-
-        <SaveBar
-          dirty={isDirty}
-          saving={saving}
-          onSave={handleSave}
-          onDiscard={handleDiscard}
-        />
       </div>
 
-      {/* Delete account modal */}
+      {/* SAVE / DISCARD BAR */}
+
+      <div className="flex flex-wrap items-center justify-between gap-3 border border-black/10 rounded-2xl p-4">
+        <p className="font-body text-xs text-black/50">
+          {isDirty
+            ? "You have unsaved preference changes."
+            : "Your preferences are up to date."}
+        </p>
+
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={handleDiscard}
+            disabled={!isDirty || saving}
+            className="h-10 px-5 rounded-full border border-black/10 font-body text-sm flex items-center gap-2 hover:bg-[#F0F0F0] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+          >
+            <RotateCcw className="w-4 h-4" />
+            Discard
+          </button>
+
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={!isDirty || saving}
+            className="h-10 px-5 rounded-full bg-black text-white font-body text-sm flex items-center gap-2 hover:bg-black/80 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+          >
+            {saving ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            Save Changes
+          </button>
+        </div>
+      </div>
+
+      {/* DELETE ACCOUNT MODAL */}
 
       {deleteOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-2xl w-full max-w-md p-6 sm:p-8 relative animate-in zoom-in-95">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl w-full max-w-md p-6 sm:p-8 relative">
             <button
               type="button"
-              onClick={() => {
-                setDeleteOpen(false);
-
-                setDeleteText("");
-              }}
-              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#F0F0F0] hover:bg-black hover:text-white flex items-center justify-center cursor-pointer transition-colors"
+              onClick={closeDeleteModal}
+              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#F0F0F0] hover:bg-black hover:text-white flex items-center justify-center cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
 
-            <div className="w-14 h-14 rounded-full bg-[#FF3333]/10 flex items-center justify-center mb-5">
-              <AlertTriangle className="w-7 h-7 text-[#FF3333]" />
+            <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mb-5">
+              <AlertTriangle className="w-7 h-7 text-red-600" />
             </div>
 
-            <h3 className="font-body font-bold text-2xl uppercase tracking-tight mb-2">
+            <h3 className="font-heading font-bold text-2xl uppercase mb-2">
               Delete Account
             </h3>
 
             <p className="font-body text-sm text-black/60 leading-relaxed mb-5">
-              This permanently removes your account, orders and saved items.
-              Type <span className="font-bold text-black">DELETE</span> to
-              confirm.
+              This action permanently removes your account and associated data.
+              Type <strong>DELETE</strong> to confirm.
             </p>
 
             <input
@@ -383,12 +518,9 @@ export default function SettingsTab() {
             <div className="flex gap-3 mt-6">
               <button
                 type="button"
-                onClick={() => {
-                  setDeleteOpen(false);
-
-                  setDeleteText("");
-                }}
-                className="flex-1 h-11 rounded-full border border-black/10 font-body text-sm font-medium hover:bg-[#F0F0F0] transition-colors cursor-pointer"
+                disabled={deleting}
+                onClick={closeDeleteModal}
+                className="flex-1 h-11 rounded-full border border-black/10 font-body text-sm font-medium hover:bg-[#F0F0F0] cursor-pointer disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -396,9 +528,10 @@ export default function SettingsTab() {
               <button
                 type="button"
                 onClick={handleDeleteAccount}
-                disabled={deleteText !== "DELETE"}
-                className="flex-1 h-11 rounded-full bg-[#FF3333] text-white font-body text-sm font-medium hover:bg-[#FF3333]/90 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                disabled={deleteText !== "DELETE" || deleting}
+                className="flex-1 h-11 rounded-full bg-red-600 text-white font-body text-sm font-medium hover:bg-red-700 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
+                {deleting && <Loader2 className="w-4 h-4 animate-spin" />}
                 Delete Forever
               </button>
             </div>
@@ -406,12 +539,20 @@ export default function SettingsTab() {
         </div>
       )}
 
-      {/* Toast */}
+      {/* TOAST */}
 
       {toast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-black text-white font-body text-sm shadow-lg animate-in fade-in">
-          <Check className="w-4 h-4" />
-
+        <div
+          role="status"
+          className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-60 flex items-center gap-2 px-5 py-3 rounded-full text-white font-body text-sm shadow-lg ${
+            toastError ? "bg-red-600" : "bg-black"
+          }`}
+        >
+          {toastError ? (
+            <AlertTriangle className="w-4 h-4" />
+          ) : (
+            <Check className="w-4 h-4" />
+          )}
           {toast}
         </div>
       )}

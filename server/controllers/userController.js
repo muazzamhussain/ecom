@@ -238,11 +238,32 @@ const updateProfile = async (req, res) => {
     }
 
     // Update password
-    if (password !== undefined) {
-      if (password.length < 6) {
+    if (password !== undefined || req.body.currentPassword !== undefined) {
+      const { currentPassword } = req.body;
+
+      if (!currentPassword || !password) {
         return res.status(400).json({
           success: false,
-          message: "Password must be at least 6 characters",
+          message: "Current and new passwords are required",
+        });
+      }
+
+      if (password.length < 8) {
+        return res.status(400).json({
+          success: false,
+          message: "Password must be at least 8 characters",
+        });
+      }
+
+      const isPasswordCorrect = await bcrypt.compare(
+        currentPassword,
+        user.password,
+      );
+
+      if (!isPasswordCorrect) {
+        return res.status(401).json({
+          success: false,
+          message: "Current password is incorrect",
         });
       }
 
