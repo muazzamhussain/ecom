@@ -1,12 +1,33 @@
-import React from "react";
-import { Plus } from "lucide-react";
+import { useMemo } from "react";
+import { Loader2, Plus } from "lucide-react";
 import StatCard from "../components/StatCard";
 import SalesChart from "../components/SalesChart";
 import TopProducts from "../components/TopProducts";
 import OrdersTable from "../components/OrdersTable";
-import { INITIAL_STATS } from "../data/mockData";
 
-const DashboardPage = ({ orders, onAddProduct, onNavigate, onViewOrder }) => {
+const DashboardPage = ({
+  orders,
+  stats,
+  onAddProduct,
+  onNavigate,
+  onViewOrder,
+}) => {
+  const recentOrders = useMemo(
+    () =>
+      [...orders]
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 4),
+    [orders],
+  );
+
+  if (stats.loading) {
+    return (
+      <div className="min-h-64 flex items-center justify-center">
+        <Loader2 className="w-7 h-7 animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="animate-in fade-in duration-300">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
@@ -29,18 +50,23 @@ const DashboardPage = ({ orders, onAddProduct, onNavigate, onViewOrder }) => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5 mb-8">
-        {INITIAL_STATS.map((s) => <StatCard key={s.label} {...s} />)}
+        {stats.cards.map((card) => (
+          <StatCard key={card.label} {...card} />
+        ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-8">
         <div className="lg:col-span-2">
-          <SalesChart />
+          <SalesChart data={stats.salesByDay} days={stats.periodDays} />
         </div>
-        <TopProducts onViewAll={() => onNavigate("products")} />
+        <TopProducts
+          products={stats.topProducts}
+          onViewAll={() => onNavigate("products")}
+        />
       </div>
 
       <OrdersTable
-        orders={orders.slice(0, 4)}
+        orders={recentOrders}
         title="Recent Orders"
         subtitle="Latest customer purchases"
         onViewAll={() => onNavigate("orders")}

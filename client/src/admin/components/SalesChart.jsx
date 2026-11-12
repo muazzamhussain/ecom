@@ -1,71 +1,74 @@
-import React, { useState } from "react";
-import { ChevronDown } from "lucide-react";
+const money = (value) =>
+  `Rs. ${Number(value || 0).toLocaleString("en-PK", { maximumFractionDigits: 0 })}`;
 
-const RANGES = {
-  "This Week": [65, 45, 80, 55, 90, 70, 95],
-  "Last Week": [40, 60, 50, 70, 55, 80, 65],
-  "Last Month": [70, 80, 55, 90, 60, 85, 95],
-};
-const LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const dayLabel = (date) =>
+  date.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 
-const SalesChart = () => {
-  const [range, setRange] = useState("This Week");
-  const [open, setOpen] = useState(false);
+const SalesChart = ({ data = [], days = 30 }) => {
+  const totalRevenue = data.reduce((sum, day) => sum + day.revenue, 0);
+  const totalOrders = data.reduce((sum, day) => sum + day.orders, 0);
+  const max = Math.max(0, ...data.map((day) => day.revenue));
 
-  const data = RANGES[range];
+  const ticks = data.length
+    ? [data[0], data[Math.floor((data.length - 1) / 2)], data[data.length - 1]]
+    : [];
 
   return (
-    <div className="bg-white border border-black/10 rounded-2xl p-6">
-      <div className="flex items-center justify-between mb-6">
+    <div className="bg-white border border-black/10 rounded-2xl p-5 sm:p-6 h-full">
+      <div className="flex flex-wrap items-start justify-between gap-3 mb-6">
         <div>
-          <h3 className="font-heading font-bold text-xl text-black">Sales Overview</h3>
-          <p className="font-body text-sm text-black/60">Daily revenue</p>
+          <h3 className="font-heading font-bold text-lg uppercase">
+            Sales Overview
+          </h3>
+          <p className="font-body text-xs text-black/50 mt-1">
+            Daily revenue, last {days} days
+          </p>
         </div>
 
-        <div className="relative">
-          <button
-            onClick={() => setOpen((v) => !v)}
-            className="flex items-center gap-2 h-10 px-4 rounded-full bg-[#F0F0F0] hover:bg-[#e0e0e0] font-body text-sm font-medium cursor-pointer transition-colors"
-          >
-            {range}
-            <ChevronDown className={`w-4 h-4 transition-transform ${open ? "rotate-180" : ""}`} />
-          </button>
-          {open && (
-            <div className="absolute right-0 top-12 bg-white border border-black/10 rounded-2xl shadow-lg p-2 w-40 z-10">
-              {Object.keys(RANGES).map((r) => (
-                <button
-                  key={r}
-                  onClick={() => {
-                    setRange(r);
-                    setOpen(false);
-                  }}
-                  className={`w-full text-left px-4 py-2 rounded-full font-body text-sm hover:bg-[#F0F0F0] cursor-pointer ${
-                    r === range ? "font-bold text-black" : "text-black/60"
+        <div className="text-right">
+          <p className="font-heading font-black text-xl">
+            {money(totalRevenue)}
+          </p>
+          <p className="font-body text-xs text-black/50">
+            {totalOrders.toLocaleString()} orders
+          </p>
+        </div>
+      </div>
+
+      {max === 0 ? (
+        <div className="h-56 flex items-center justify-center rounded-xl bg-[#F9F9F9] font-body text-sm text-black/50">
+          No sales in this period yet.
+        </div>
+      ) : (
+        <>
+          <div className="flex items-end gap-0.5 h-56">
+            {data.map((day) => (
+              <div
+                key={day.date.toISOString()}
+                title={`${dayLabel(day.date)}: ${money(day.revenue)} from ${day.orders} orders`}
+                className="flex-1 h-full flex items-end"
+              >
+                <div
+                  className={`w-full rounded-t ${
+                    day.revenue ? "bg-black hover:bg-black/70" : "bg-black/10"
                   }`}
-                >
-                  {r}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="flex items-end justify-between gap-2 sm:gap-4 h-56 pt-4">
-        {data.map((height, idx) => (
-          <div key={idx} className="flex-1 flex flex-col items-center gap-2 group cursor-pointer">
-            <div
-              className="w-full bg-[#F0F0F0] group-hover:bg-black rounded-t-xl transition-all relative"
-              style={{ height: `${height}%` }}
-            >
-              <span className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs font-body px-2 py-1 rounded whitespace-nowrap transition-opacity">
-                ${(height * 50).toLocaleString()}
-              </span>
-            </div>
-            <span className="font-body text-xs text-black/60">{LABELS[idx]}</span>
+                  style={{
+                    height: day.revenue
+                      ? `${Math.max((day.revenue / max) * 100, 3)}%`
+                      : "2px",
+                  }}
+                />
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+
+          <div className="flex justify-between mt-3 font-body text-xs text-black/50">
+            {ticks.map((day) => (
+              <span key={day.date.toISOString()}>{dayLabel(day.date)}</span>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 };

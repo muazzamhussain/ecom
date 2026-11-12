@@ -167,7 +167,7 @@ const ProductGrid = ({ filters }) => {
               product={product}
               title={product.name}
               desc={product.description}
-              image={product.images?.[0]}
+              image={product.images?.[0].url}
               rating={product.ratings}
               price={product.cost}
               discountPrice={product.salePrice}

@@ -9,6 +9,7 @@ import Cart from "./Pages/Cart.jsx";
 import ProductDetail from "./Pages/ProductDetails.jsx";
 import Profile from "./Pages/Profile.jsx";
 import AdminDashboard from "./admin/AdminDashboard.jsx";
+import Checkout from "./Pages/Checkout.jsx";
 
 import { AuthProvider } from "./context/authContext";
 import { CartContextProvider } from "./context/cartContext";
@@ -25,6 +26,7 @@ const router = createBrowserRouter([
   { path: "/products/:id", element: <ProductDetail /> },
   { path: "/profile", element: <Profile /> },
   { path: "/admin", element: <AdminDashboard /> },
+  { path: "/checkout", element: <Checkout /> },
 ]);
 
 export default function App() {

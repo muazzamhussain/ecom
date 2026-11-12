@@ -55,7 +55,7 @@ const ProductSection = () => {
           product={product}
           title={product.name}
           desc={product.description}
-          image={product.images?.[0] ?? product.image?.[0] ?? product.image}
+          image={product.images?.[0].url}
           rating={product.ratings}
           price={product.cost}
           discountPrice={product.salePrice}

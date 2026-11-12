@@ -11,7 +11,7 @@ const OrderSchema = mongoose.Schema(
           required: true,
         },
         name: { type: String, required: true },
-        quantity: { type: String, required: true },
+        quantity: { type: Number, required: true, min: 1 },
         price: { type: Number, required: true },
         image: { type: String },
       },
@@ -23,8 +23,10 @@ const OrderSchema = mongoose.Schema(
         state: { type: String, required: true },
         zipCode: { type: String, required: true },
         country: { type: String, required: true },
+        phone: { type: String },
       },
     ],
+    paymentMethod: { type: String, enum: ["COD"], default: "COD" },
     paymentResult: {
       id: { type: String },
       status: {
