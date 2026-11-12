@@ -3,10 +3,11 @@ const {
   getSettings,
   updateSettings,
 } = require("../controllers/settingController");
+const { verifyToken, authorizeRoles } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-router.get("/", getSettings);
-router.put("/", updateSettings);
+router.get("/", verifyToken, authorizeRoles("admin"), getSettings);
+router.put("/", verifyToken, authorizeRoles("admin"), updateSettings);
 
 module.exports = router;

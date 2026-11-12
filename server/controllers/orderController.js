@@ -96,7 +96,7 @@ const getMyOrders = async (req, res) => {
   }
 };
 
-const updateOrderToBePaid = async (req, res) => {
+const updatePayStatus = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
     if (order) {
@@ -117,7 +117,7 @@ const updateOrderToBePaid = async (req, res) => {
   }
 };
 
-const updateOrderToBeDelivered = async (req, res) => {
+const updateDeliveryStatus = async (req, res) => {
   try {
     const order = await Order.find(req.params.id);
     if (order) {
@@ -135,11 +135,67 @@ const updateOrderToBeDelivered = async (req, res) => {
   }
 };
 
+const updateOrderStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    const allowedStatuses = ["Processing", "Shipped", "Delivered", "Cancelled"];
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid order status.",
+      });
+    }
+
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found.",
+      });
+    }
+
+    // Prevent changing a cancelled order back to another status.
+    if (order.orderStatus === "Cancelled" && status !== "Cancelled") {
+      return res.status(400).json({
+        success: false,
+        message: "A cancelled order cannot be updated.",
+      });
+    }
+
+    order.orderStatus = status;
+
+    if (status === "Delivered") {
+      order.deliveredDate = new Date();
+    } else {
+      order.deliveredDate = undefined;
+    }
+
+    const updatedOrder = await order.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Order status updated successfully.",
+      order: updatedOrder,
+    });
+  } catch (error) {
+    console.error("Error updating order status:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error.",
+    });
+  }
+};
+
 module.exports = {
   addOrderItems,
   getOrders,
   getOrderById,
   getMyOrders,
-  updateOrderToBePaid,
-  updateOrderToBeDelivered,
+  updatePayStatus,
+  updateDeliveryStatus,
+  updateOrderStatus
 };

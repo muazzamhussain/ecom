@@ -4,23 +4,38 @@ const {
   getOrders,
   getMyOrders,
   getOrderById,
-  updateOrderToBePaid,
-  updateOrderToBeDelivered,
+  updatePayStatus,
+  updateDeliveryStatus,
+  updateOrderStatus,
 } = require("../controllers/orderController");
-const { verifyToken } = require("../middleware/authMiddleware");
+const { verifyToken, authorizeRoles } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-router.post("/", addOrderItems);
+router.post("/", verifyToken, addOrderItems);
 
-router.get("/", getOrders);
+router.get("/", verifyToken, getOrders);
 
 router.get("/myorders", verifyToken, getMyOrders);
 
-router.get("/:id", getOrderById);
+router.get("/:id", verifyToken, getOrderById);
 
-router.put("/:id/pay", updateOrderToBePaid);
+router.put("/:id/pay", verifyToken, authorizeRoles("admin"), updatePayStatus);
 
-router.put("/:id/deliver", updateOrderToBeDelivered);
+router.put(
+  "/:id/deliver",
+  verifyToken,
+  authorizeRoles("admin"),
+  updateDeliveryStatus,
+);
+
+
+router.put(
+  "/:id/status",
+  verifyToken,
+  authorizeRoles("admin"),
+  updateOrderStatus
+);
+
 
 module.exports = router;

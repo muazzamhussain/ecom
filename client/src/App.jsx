@@ -1,4 +1,3 @@
-import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import Home from "./Pages/Home.jsx";
@@ -16,17 +15,26 @@ import { CartContextProvider } from "./context/cartContext";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ProtectedRoute from "./routes/ProtectedRoute.jsx";
 
 const router = createBrowserRouter([
   { path: "/", element: <Home /> },
   { path: "/sign-up", element: <Signup /> },
   { path: "/login", element: <Login /> },
   { path: "/products", element: <Products /> },
-  { path: "/cart", element: <Cart /> },
   { path: "/products/:id", element: <ProductDetail /> },
-  { path: "/profile", element: <Profile /> },
-  { path: "/admin", element: <AdminDashboard /> },
-  { path: "/checkout", element: <Checkout /> },
+  {
+    element: <ProtectedRoute allowedRoles={["customer"]} />,
+    children: [
+      { path: "/profile", element: <Profile /> },
+      { path: "/cart", element: <Cart /> },
+      { path: "/checkout", element: <Checkout /> },
+    ],
+  },
+  {
+    element: <ProtectedRoute allowedRoles={["admin"]} />,
+    children: [{ path: "/admin", element: <AdminDashboard /> }],
+  },
 ]);
 
 export default function App() {

@@ -24,7 +24,7 @@ router.get("/me", verifyToken, getUserProfile);
 router.put("/profile", verifyToken, updateProfile);
 
 // Admin-only routes
-router.get("/",  getUsers);
+router.get("/", verifyToken, authorizeRoles("admin"), getUsers);
 
 router.delete("/:id", verifyToken, authorizeRoles("admin"), deleteUser);
 

@@ -50,7 +50,7 @@ const Login = () => {
 
       toast.success(data.message || "Login successful!");
 
-      navigate(data.user.role === "admin" ? "/admin/dashboard" : "/");
+      navigate(data.user.role === "admin" ? "/admin" : "/");
     } catch (error) {
       console.error("Login error:", error);
 
