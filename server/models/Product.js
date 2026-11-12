@@ -9,7 +9,12 @@ const ProductSchema = mongoose.Schema(
     salePrice: { type: Number, required: true, min: 0 },
     category: { type: String, required: true },
     brand: { type: String },
-    images: [{ type: String }],
+    images: [
+      {
+        url: { type: String, required: true },
+        publicId: { type: String, required: true },
+      },
+    ],
     stock: { type: Number, required: true, default: 0 },
     soldCount: { type: Number, default: 0, min: 0 },
     ratings: {

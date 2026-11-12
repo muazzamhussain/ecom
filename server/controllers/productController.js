@@ -1,6 +1,10 @@
 const Product = require("../models/Product");
+const cloudinary = require("../config/cloudinary");
+const uploadToCloudinary = require("../utils/uploadToCloudinary");
 
 const createProduct = async (req, res) => {
+  let uploadedImages = [];
+
   try {
     const {
       name,
@@ -10,51 +14,90 @@ const createProduct = async (req, res) => {
       salePrice,
       category,
       brand,
-      images,
       stock,
-      ratings,
-      reviews,
     } = req.body;
 
     if (
-      !name ||
-      !description ||
-      !cost ||
-      !price ||
-      !category ||
-      !salePrice ||
-      !stock
+      !name?.trim() ||
+      !description?.trim() ||
+      cost === undefined ||
+      price === undefined ||
+      salePrice === undefined ||
+      !category?.trim()
     ) {
-      return res.status(400).json({ message: "Fill all required fields" });
+      return res.status(400).json({
+        success: false,
+        message: "Please provide all required product fields",
+      });
     }
 
-    const productExists = await Product.findOne({ name });
-    if (productExists) {
-      return res.status(400).json({ message: "Product already exists" });
+    const numericFields = {
+      cost: Number(cost),
+      price: Number(price),
+      salePrice: Number(salePrice),
+      stock: Number(stock ?? 0),
+    };
+
+    if (numericFields.salePrice > numericFields.price) {
+      return res.status(400).json({
+        success: false,
+        message: "Sale price cannot exceed the original price",
+      });
     }
 
-    const newProduct = new Product({
-      name,
-      description,
-      cost,
-      price,
-      salePrice,
-      category,
-      brand,
-      images,
-      stock,
-      ratings,
-      reviews,
+    if (
+      Object.values(numericFields).some(
+        (value) => !Number.isFinite(value) || value < 0,
+      )
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Product prices and stock must be valid non-negative numbers",
+      });
+    }
+
+    if (!req.files?.length) {
+      return res.status(400).json({
+        success: false,
+        message: "At least one product image is required",
+      });
+    }
+
+    uploadedImages = await Promise.all(
+      req.files.map((file) => uploadToCloudinary(file.buffer)),
+    );
+
+    const product = await Product.create({
+      name: name.trim(),
+      description: description.trim(),
+      cost: numericFields.cost,
+      price: numericFields.price,
+      salePrice: numericFields.salePrice,
+      category: category.trim(),
+      brand: brand?.trim() || "",
+      stock: numericFields.stock,
+      images: uploadedImages,
     });
 
-    const createdProduct = await newProduct.save();
-
-    res
-      .status(201)
-      .json({ message: "product saved successfully" }, createdProduct);
+    return res.status(201).json({
+      success: true,
+      message: "Product added successfully",
+      product,
+    });
   } catch (error) {
-    console.log("Product saving Error: " + error);
-    return res.status(500).json({ message: "Internal server error " + error });
+    // Remove uploaded images if product creation fails.
+    await Promise.allSettled(
+      uploadedImages.map((image) =>
+        cloudinary.uploader.destroy(image.publicId),
+      ),
+    );
+
+    console.error("Add product error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to add product",
+    });
   }
 };
 
@@ -69,58 +112,222 @@ const getProducts = async (req, res) => {
 };
 
 const updateProduct = async (req, res) => {
+  let newlyUploadedImages = [];
+
   try {
-    const productId = req.body.id;
+    const product = await Product.findById(req.params.id);
 
-    const product = await Product.findById(productId);
-    if (product) {
-      const {
-        name,
-        description,
-        cost,
-        price,
-        salePrice,
-        category,
-        brand,
-        images,
-        stock,
-      } = req.body;
-
-      const updatedProduct = await Product.updateOne({
-        name,
-        description,
-        cost,
-        price,
-        salePrice,
-        category,
-        brand,
-        images,
-        stock,
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
       });
-
-      res.status(200).json({ message: "Product updated successfully" });
-    } else {
-      return res.status(500).json({ message: "Internal server error" });
     }
+
+    const oldImages = product.images.map((image) => ({
+      publicId: image.publicId,
+    }));
+
+    const {
+      name,
+      description,
+      cost,
+      price,
+      salePrice,
+      category,
+      brand,
+      stock,
+      existingImages,
+    } = req.body;
+
+    // Validate numeric fields before uploading anything.
+    const updates = {};
+
+    for (const field of ["cost", "price", "salePrice", "stock"]) {
+      if (req.body[field] !== undefined) {
+        const value = Number(req.body[field]);
+
+        if (!Number.isFinite(value) || value < 0) {
+          return res.status(400).json({
+            success: false,
+            message: `${field} must be a valid non-negative number`,
+          });
+        }
+
+        updates[field] = value;
+      }
+    }
+
+    if (
+      (updates.salePrice ?? product.salePrice) >
+      (updates.price ?? product.price)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Sale price cannot exceed the original price",
+      });
+    }
+
+    if (name !== undefined) {
+      if (!name.trim()) {
+        return res.status(400).json({
+          success: false,
+          message: "Product name cannot be empty",
+        });
+      }
+      updates.name = name.trim();
+    }
+
+    if (description !== undefined) {
+      if (!description.trim()) {
+        return res.status(400).json({
+          success: false,
+          message: "Description cannot be empty",
+        });
+      }
+      updates.description = description.trim();
+    }
+
+    if (category !== undefined) {
+      if (!category.trim()) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Category cannot be empty" });
+      }
+      updates.category = category.trim();
+    }
+
+    if (brand !== undefined) {
+      updates.brand = brand.trim();
+    }
+
+    // Retain only images belonging to this product.
+    let retainedImages = product.images;
+
+    if (existingImages !== undefined) {
+      let publicIds;
+
+      try {
+        publicIds = JSON.parse(existingImages);
+      } catch {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid existingImages format",
+        });
+      }
+
+      if (
+        !Array.isArray(publicIds) ||
+        publicIds.some((id) => typeof id !== "string")
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid existing image IDs",
+        });
+      }
+
+      retainedImages = product.images.filter((image) =>
+        publicIds.includes(image.publicId),
+      );
+    }
+
+    // Upload newly selected images.
+    if (req.files?.length) {
+      newlyUploadedImages = await Promise.all(
+        req.files.map((file) => uploadToCloudinary(file.buffer)),
+      );
+    }
+
+    const finalImages = [...retainedImages, ...newlyUploadedImages];
+
+    if (!finalImages.length) {
+      await Promise.allSettled(
+        newlyUploadedImages.map((image) =>
+          cloudinary.uploader.destroy(image.publicId),
+        ),
+      );
+
+      return res.status(400).json({
+        success: false,
+        message: "A product must have at least one image",
+      });
+    }
+
+    product.set({
+      ...updates,
+      images: finalImages,
+    });
+
+    await product.save();
+
+    // Remove old images only after successful database save.
+    const finalIds = new Set(finalImages.map((image) => image.publicId));
+
+    await Promise.allSettled(
+      oldImages
+        .filter((image) => !finalIds.has(image.publicId))
+        .map((image) => cloudinary.uploader.destroy(image.publicId)),
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Product updated successfully",
+      product,
+    });
   } catch (error) {
-    console.log("Error updating product " + error);
-    res.status(500).json({ message: "Internal server error" });
+    await Promise.allSettled(
+      newlyUploadedImages.map((image) =>
+        cloudinary.uploader.destroy(image.publicId),
+      ),
+    );
+
+    console.error("Update product error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update product",
+    });
   }
 };
 
 const deleteProduct = async (req, res) => {
   try {
-    const productId = req.params.id || req.body.id;
-    const product = await Product.findByIdAndDelete(productId);
+    const product = await Product.findById(req.params.id);
 
     if (!product) {
-      return res.status(404).json({ message: "Product not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
     }
 
-    res.status(200).json({ message: "Product deleted successfully" });
+    // Delete the database record first.
+    await Product.findByIdAndDelete(req.params.id);
+
+    // Then remove its Cloudinary images.
+    const results = await Promise.allSettled(
+      product.images.map((image) =>
+        cloudinary.uploader.destroy(image.publicId),
+      ),
+    );
+
+    results.forEach((result) => {
+      if (result.status === "rejected") {
+        console.error("Cloudinary deletion failed:", result.reason);
+      }
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Product deleted successfully",
+    });
   } catch (error) {
-    console.log("Error deleting product " + error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error("Delete product error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete product",
+    });
   }
 };
 
@@ -174,20 +381,16 @@ const createProductReview = async (req, res) => {
 
 const searchProducts = async (req, res) => {
   try {
-    const { q } = req.query;
+    const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
+    if (!q) return res.status(200).json({ success: true, products: [] });
 
-    if (!q || !q.trim()) {
-      return res.status(200).json({
-        success: true,
-        products: [],
-      });
-    }
+    const pattern = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
     const products = await Product.find({
       $or: [
-        { name: { $regex: q.trim(), $options: "i" } },
-        { category: { $regex: q.trim(), $options: "i" } },
-        { brand: { $regex: q.trim(), $options: "i" } },
+        { name: { $regex: pattern, $options: "i" } },
+        { category: { $regex: pattern, $options: "i" } },
+        { brand: { $regex: pattern, $options: "i" } },
       ],
     }).limit(20);
 

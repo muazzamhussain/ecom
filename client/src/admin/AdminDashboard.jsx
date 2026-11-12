@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "react-toastify";
+
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 import DashboardPage from "./pages/DashboardPage";
@@ -8,7 +10,6 @@ import CustomersPage from "./pages/CustomersPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import SettingsPage from "./pages/SettingsPage";
 import ConfirmModal from "../components/ConfirmModal";
-import { INITIAL_PRODUCTS, INITIAL_CUSTOMERS } from "./data/mockData";
 import API from "../lib/api";
 
 const AdminDashboard = () => {
@@ -17,34 +18,66 @@ const AdminDashboard = () => {
   const [search, setSearch] = useState("");
   const [logoutConfirm, setLogoutConfirm] = useState(false);
 
+  // Which view ProductsPage should show: "list" | "add" | "edit"
+  const [productsView, setProductsView] = useState("list");
+
   // Entity state
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [customers, setCustomers] = useState([]);
 
-  // Signal child to open "add" form
-  const [addProductTick, setAddProductTick] = useState(0);
+  // --------------------------------------------------
+  // DATA FETCHING
+  // Defined at component level so the product handlers can refresh the list.
+  // --------------------------------------------------
 
-  // CRUD handlers
-  const handleAdd = (data) => {
-    setProducts((prev) => [{ ...data, id: Date.now() }, ...prev]);
-  };
-  const handleUpdate = (updated) => {
-    setProducts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
-  };
-  const handleDelete = (id) => {
-    setProducts((prev) => prev.filter((p) => p.id !== id));
-  };
+  const fetchProducts = useCallback(async () => {
+    try {
+      const { data } = await API.get("/product");
+      setProducts(data);
+    } catch (error) {
+      console.error("Error fetching products", error);
+    }
+  }, []);
+
+  const fetchOrders = useCallback(async () => {
+    try {
+      const { data } = await API.get("/order");
+      setOrders(data);
+    } catch (error) {
+      console.error("Error fetching orders", error);
+    }
+  }, []);
+
+  const fetchCustomers = useCallback(async () => {
+    try {
+      const { data } = await API.get("/auth");
+      setCustomers(data.users);
+    } catch (error) {
+      console.error("Error fetching customers", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchProducts();
+    fetchOrders();
+    fetchCustomers();
+  }, [fetchProducts, fetchOrders, fetchCustomers]);
+
+  // --------------------------------------------------
+  // NAVIGATION
+  // --------------------------------------------------
 
   const handleTabChange = (id) => {
     setActiveTab(id);
+    setProductsView("list"); // always land on the product list
     setSidebarOpen(false);
     setSearch(""); // clear search when switching
   };
 
   const handleAddProductFromDashboard = () => {
+    setProductsView("add");
     setActiveTab("products");
-    setAddProductTick((t) => t + 1); // force ProductsPage effect
   };
 
   const handleViewOrder = () => setActiveTab("orders");
@@ -56,36 +89,56 @@ const AdminDashboard = () => {
     // real app: clear auth + redirect
   };
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const result = await API.get("/order");
-        setOrders(result.data);
-      } catch (error) {
-        console.error("Error fetching orders", error);
-      }
-    };
-    const fetchProducts = async () => {
-      try {
-        const result = await API.get("/product");
-        setProducts(result.data);
-      } catch (error) {
-        console.error("Error fetching products", error);
-      }
-    };
-    const fetchCustomers = async () => {
-      try {
-        const result = await API.get("/auth");
-        setCustomers(result.data.users);
-      } catch (error) {
-        console.error("Error fetching customers", error);
-      }
-    };
+  // --------------------------------------------------
+  // PRODUCT ACTIONS
+  // --------------------------------------------------
 
-    fetchOrders();
-    fetchProducts();
-    fetchCustomers();
-  }, []);
+  const handleAddProduct = async (formData) => {
+    try {
+      const { data } = await API.post("/product", formData);
+
+      toast.success(data.message || "Product added successfully");
+      await fetchProducts();
+
+      return data.product;
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to add product");
+      throw error;
+    }
+  };
+
+  const handleUpdateProduct = async (productId, formData) => {
+    try {
+      const { data } = await API.put(`/product/${productId}`, formData);
+
+      toast.success(data.message || "Product updated successfully");
+      await fetchProducts();
+
+      return data.product;
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update product");
+      throw error;
+    }
+  };
+
+  const handleDeleteProduct = async (productId) => {
+    try {
+      const { data } = await API.delete(`/product/${productId}`);
+
+      toast.success(data.message || "Product deleted successfully");
+      await fetchProducts();
+
+      return data;
+    } catch (error) {
+      console.error("Delete product error:", error);
+      toast.error(error.response?.data?.message || "Failed to delete product");
+      throw error;
+    }
+  };
+
+  // --------------------------------------------------
+  // PAGES
+  // --------------------------------------------------
 
   const renderPage = () => {
     switch (activeTab) {
@@ -101,12 +154,13 @@ const AdminDashboard = () => {
       case "products":
         return (
           <ProductsPage
-            key={addProductTick} // reset local view when "Add" triggered
             products={products}
-            onAdd={handleAdd}
-            onUpdate={handleUpdate}
-            onDelete={handleDelete}
             searchValue={search}
+            initialView={productsView}
+            onViewChange={setProductsView}
+            onAdd={handleAddProduct}
+            onUpdate={handleUpdateProduct}
+            onDelete={handleDeleteProduct}
           />
         );
       case "orders":

@@ -9,18 +9,19 @@ const {
   searchProducts,
 } = require("../controllers/productController");
 const { verifyToken } = require("../middleware/authMiddleware");
+const upload = require("../middleware/upload");
 
 const router = express.Router();
 
 router.get("/search", searchProducts);
 
-router.post("/", createProduct);
+router.post("/", upload.array("images", 8), createProduct);
 
 router.get("/", getProducts);
 
-router.delete("/:id", deleteProduct);
+router.put("/:id", upload.array("images", 8), updateProduct);
 
-router.put("/", updateProduct);
+router.delete("/:id", deleteProduct);
 
 router.get("/:id", getProductById);
 
