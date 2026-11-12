@@ -72,6 +72,7 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    const rememberMe = req.body.rememberMe === true;
 
     if (!email || !password) {
       return res.status(400).json({
@@ -100,15 +101,22 @@ const login = async (req, res) => {
       });
     }
 
-    const token = generateToken(user);
+    const token = generateToken(user, rememberMe);
 
-    res.cookie("token", token, {
+    const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: "/",
-    });
+    };
+
+    // Persistent cookie only when Remember me is checked
+    if (rememberMe) {
+      cookieOptions.maxAge = 30 * 24 * 60 * 60 * 1000;
+    }
+
+    res.cookie("token", token, cookieOptions);
 
     return res.status(200).json({
       success: true,

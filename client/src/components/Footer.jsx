@@ -1,8 +1,8 @@
-import React from "react";
 import { FaTwitter, FaFacebookSquare } from "react-icons/fa";
 import { TbBrandGithubFilled } from "react-icons/tb";
 import { AiFillInstagram } from "react-icons/ai";
 import Newsletter from "./Newsletter";
+import { useAuth } from "../context/authContext";
 
 const footerLinks = [
   {
@@ -44,9 +44,10 @@ const footerLinks = [
 ];
 
 const Footer = () => {
+  const { user } = useAuth();
   return (
     <footer className="bg-gray-100 pt-6 pb-8 font-body text-black/60">
-      <Newsletter />
+      {!user && <Newsletter />}
       <div className="mx-auto max-w-7xl px-4 md:px-8">
         {/* Top Grid Section */}
         <div className="grid grid-cols-1 md:py-4 gap-8 md:grid-cols-5 lg:gap-12">

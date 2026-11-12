@@ -11,6 +11,7 @@ const orderRoutes = require("./routes/order");
 const preferenceRoutes = require("./routes/preference");
 const settingRoutes = require("./routes/setting");
 const checkoutRoutes = require("./routes/checkout");
+const subscriberRoutes = require("./routes/subscriber");
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ app.use("/api/v1/order", orderRoutes);
 app.use("/api/v1/preferences", preferenceRoutes);
 app.use("/api/v1/settings", settingRoutes);
 app.use("/api/v1/checkout", checkoutRoutes);
+app.use("/api/v1/newsletter", subscriberRoutes);
 
 app.listen(port, () => {
   console.log("App listening on port: " + port);

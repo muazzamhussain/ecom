@@ -32,28 +32,32 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       setLoading(true);
+
       const { data } = await API.post("/auth/login", {
         email: form.email.trim(),
         password: form.password,
+        rememberMe: form.remember,
       });
 
-      setUser(data.user);
-      toast.success(data?.message || "Login successful!");
-
-      if (data.user.role === "admin") {
-        navigate("/admin/dashboard");
-      } else {
-        navigate("/");
+      if (!data?.user) {
+        throw new Error("Invalid login response from server.");
       }
-      
+
+      setUser(data.user);
+
+      toast.success(data.message || "Login successful!");
+
+      navigate(data.user.role === "admin" ? "/admin/dashboard" : "/");
     } catch (error) {
       console.error("Login error:", error);
 
       toast.error(
         error.response?.data?.message ||
           error.response?.data?.error ||
+          error.message ||
           "Invalid email or password.",
       );
     } finally {
